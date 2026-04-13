@@ -1,0 +1,720 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>L-A-I セットアップサポート</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --bg: #0a0a0f;
+    --bg2: #111118;
+    --bg3: #1a1a24;
+    --border: rgba(255,255,255,0.08);
+    --text: #f0efe8;
+    --text2: #9998a0;
+    --accent: #c8f564;
+    --accent2: rgba(200,245,100,0.1);
+    --user-bg: #1a1a24;
+    --ai-bg: #111118;
+  }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    height: 100dvh;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* Header */
+  .header {
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-shrink: 0;
+  }
+
+  .header-logo {
+    font-size: 18px;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+  }
+
+  .header-logo span { color: var(--accent); }
+
+  .header-badge {
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    color: var(--accent);
+    background: var(--accent2);
+    padding: 3px 8px;
+    border-radius: 100px;
+  }
+
+  .header-status {
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    color: var(--text2);
+  }
+
+  .status-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--accent);
+    animation: pulse 2s infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.4; }
+  }
+
+  /* Steps */
+  .steps {
+    padding: 12px 20px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    gap: 6px;
+    overflow-x: auto;
+    flex-shrink: 0;
+    scrollbar-width: none;
+  }
+
+  .steps::-webkit-scrollbar { display: none; }
+
+  .step {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    border-radius: 100px;
+    border: 1px solid var(--border);
+    font-size: 11px;
+    white-space: nowrap;
+    color: var(--text2);
+    flex-shrink: 0;
+  }
+
+  .step.active {
+    border-color: var(--accent);
+    color: var(--accent);
+    background: var(--accent2);
+  }
+
+  .step.done {
+    border-color: rgba(255,255,255,0.15);
+    color: rgba(255,255,255,0.3);
+  }
+
+  .step-num {
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: currentColor;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 9px;
+    font-weight: 700;
+    color: var(--bg);
+  }
+
+  /* Chat */
+  .chat {
+    flex: 1;
+    overflow-y: auto;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .message {
+    display: flex;
+    gap: 10px;
+    max-width: 100%;
+    animation: fadeIn 0.3s ease;
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(8px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .message.user { flex-direction: row-reverse; }
+
+  .avatar {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+    font-weight: 700;
+  }
+
+  .avatar.ai {
+    background: var(--accent2);
+    color: var(--accent);
+    border: 1px solid rgba(200,245,100,0.2);
+  }
+
+  .avatar.user-av {
+    background: var(--bg3);
+    color: var(--text2);
+    border: 1px solid var(--border);
+  }
+
+  .bubble {
+    max-width: calc(100% - 50px);
+    padding: 12px 14px;
+    border-radius: 16px;
+    font-size: 14px;
+    line-height: 1.65;
+  }
+
+  .message.ai .bubble {
+    background: var(--ai-bg);
+    border: 1px solid var(--border);
+    border-top-left-radius: 4px;
+    color: var(--text);
+  }
+
+  .message.user .bubble {
+    background: var(--accent2);
+    border: 1px solid rgba(200,245,100,0.2);
+    border-top-right-radius: 4px;
+    color: var(--text);
+  }
+
+  .bubble img {
+    max-width: 100%;
+    border-radius: 8px;
+    margin-top: 8px;
+    display: block;
+  }
+
+  /* Typing indicator */
+  .typing {
+    display: flex;
+    gap: 4px;
+    padding: 4px 0;
+  }
+
+  .typing span {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--text2);
+    animation: bounce 1.2s infinite;
+  }
+
+  .typing span:nth-child(2) { animation-delay: 0.2s; }
+  .typing span:nth-child(3) { animation-delay: 0.4s; }
+
+  @keyframes bounce {
+    0%, 60%, 100% { transform: translateY(0); }
+    30% { transform: translateY(-6px); }
+  }
+
+  /* Quick replies */
+  .quick-replies {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    padding: 0 20px 12px;
+    flex-shrink: 0;
+  }
+
+  .quick-btn {
+    padding: 7px 14px;
+    border-radius: 100px;
+    border: 1px solid var(--border);
+    background: var(--bg2);
+    color: var(--text2);
+    font-size: 12px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .quick-btn:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+    background: var(--accent2);
+  }
+
+  /* Input */
+  .input-area {
+    padding: 12px 20px 20px;
+    border-top: 1px solid var(--border);
+    flex-shrink: 0;
+  }
+
+  .input-box {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 10px 14px;
+    display: flex;
+    gap: 10px;
+    align-items: flex-end;
+    transition: border-color 0.2s;
+  }
+
+  .input-box:focus-within {
+    border-color: rgba(200,245,100,0.4);
+  }
+
+  .input-box textarea {
+    flex: 1;
+    background: none;
+    border: none;
+    outline: none;
+    color: var(--text);
+    font-size: 14px;
+    line-height: 1.5;
+    resize: none;
+    max-height: 100px;
+    min-height: 22px;
+    font-family: inherit;
+  }
+
+  .input-box textarea::placeholder { color: var(--text2); }
+
+  .input-actions {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    flex-shrink: 0;
+  }
+
+  .img-btn {
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    background: var(--bg3);
+    color: var(--text2);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    transition: all 0.2s;
+  }
+
+  .img-btn:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+
+  .send-btn {
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    border: none;
+    background: var(--accent);
+    color: var(--bg);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    transition: opacity 0.2s;
+    flex-shrink: 0;
+  }
+
+  .send-btn:disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+  }
+
+  .send-btn:hover:not(:disabled) { opacity: 0.85; }
+
+  #file-input { display: none; }
+
+  /* Image preview */
+  .img-preview {
+    display: flex;
+    gap: 8px;
+    padding: 8px 20px 0;
+    flex-wrap: wrap;
+  }
+
+  .img-preview-item {
+    position: relative;
+    width: 60px;
+    height: 60px;
+  }
+
+  .img-preview-item img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+  }
+
+  .img-preview-item .remove {
+    position: absolute;
+    top: -4px;
+    right: -4px;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: #ff4444;
+    color: white;
+    font-size: 10px;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  /* Complete button */
+  .complete-section {
+    margin: 8px 20px;
+    padding: 14px 16px;
+    background: var(--accent2);
+    border: 1px solid rgba(200,245,100,0.3);
+    border-radius: 14px;
+    display: none;
+  }
+
+  .complete-section.show { display: block; }
+
+  .complete-title {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--accent);
+    margin-bottom: 8px;
+  }
+
+  .complete-btn {
+    display: inline-block;
+    padding: 8px 20px;
+    background: var(--accent);
+    color: var(--bg);
+    border-radius: 100px;
+    font-size: 13px;
+    font-weight: 700;
+    text-decoration: none;
+    cursor: pointer;
+    border: none;
+  }
+
+  /* Markdown-like formatting */
+  .bubble strong { font-weight: 600; color: var(--text); }
+  .bubble code {
+    background: var(--bg3);
+    padding: 1px 6px;
+    border-radius: 4px;
+    font-family: monospace;
+    font-size: 12px;
+    color: var(--accent);
+  }
+  .bubble ul, .bubble ol {
+    padding-left: 16px;
+    margin: 6px 0;
+  }
+  .bubble li { margin: 3px 0; }
+  .bubble a { color: var(--accent); }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-logo">L-<span>A</span>-I</div>
+  <div class="header-badge">セットアップサポート</div>
+  <div class="header-status">
+    <div class="status-dot"></div>
+    AIサポート中
+  </div>
+</div>
+
+<div class="steps" id="steps">
+  <div class="step active" data-step="1">
+    <div class="step-num">1</div>FBページ作成
+  </div>
+  <div class="step" data-step="2">
+    <div class="step-num">2</div>IG連携
+  </div>
+  <div class="step" data-step="3">
+    <div class="step-num">3</div>アプリ作成
+  </div>
+  <div class="step" data-step="4">
+    <div class="step-num">4</div>システムユーザー
+  </div>
+  <div class="step" data-step="5">
+    <div class="step-num">5</div>アセット割り当て
+  </div>
+  <div class="step" data-step="6">
+    <div class="step-num">6</div>トークン生成
+  </div>
+  <div class="step" data-step="7">
+    <div class="step-num">7</div>完了
+  </div>
+</div>
+
+<div class="chat" id="chat"></div>
+
+<div class="img-preview" id="imgPreview"></div>
+
+<div class="complete-section" id="completeSection">
+  <div class="complete-title">🎉 トークンが取得できましたか？</div>
+  <button class="complete-btn" onclick="showTokenForm()">
+    トークンを送付して設定完了 →
+  </button>
+</div>
+
+<div class="quick-replies" id="quickReplies">
+  <button class="quick-btn" onclick="sendQuick('最初から始めたいです')">最初から始める</button>
+  <button class="quick-btn" onclick="sendQuick('詰まっています。スクリーンショットを送ります')">詰まっている</button>
+  <button class="quick-btn" onclick="sendQuick('エラーが出ました')">エラーが出た</button>
+  <button class="quick-btn" onclick="sendQuick('トークンが取得できました')">取得できた！</button>
+</div>
+
+<div class="input-area">
+  <div class="input-box">
+    <textarea
+      id="input"
+      placeholder="メッセージを入力、または画像を送ってください..."
+      rows="1"
+      onkeydown="handleKey(event)"
+      oninput="autoResize(this)"
+    ></textarea>
+    <div class="input-actions">
+      <button class="img-btn" onclick="document.getElementById('file-input').click()" title="画像を添付">
+        📎
+      </button>
+      <button class="send-btn" id="sendBtn" onclick="sendMessage()" title="送信">
+        ↑
+      </button>
+    </div>
+  </div>
+  <input type="file" id="file-input" accept="image/*" multiple onchange="handleFiles(event)">
+</div>
+
+<script>
+const chatEl      = document.getElementById('chat');
+const inputEl     = document.getElementById('input');
+const sendBtn     = document.getElementById('sendBtn');
+const imgPreview  = document.getElementById('imgPreview');
+const quickReplies = document.getElementById('quickReplies');
+
+let messages      = [];
+let pendingImages  = [];
+let isLoading     = false;
+
+// 初回メッセージ
+window.addEventListener('load', () => {
+  addMessage('ai', `こんにちは！L-A-Iのセットアップサポートです。\n\nInstagramのアクセストークン取得をお手伝いします。詰まったところでスクリーンショットを送っていただければ、すぐに次の手順を案内します。\n\nまず確認させてください。**Facebookアカウント**はお持ちですか？`);
+});
+
+function addMessage(role, content, imageUrl = null) {
+  const msg = document.createElement('div');
+  msg.className = `message ${role}`;
+
+  const avatar = document.createElement('div');
+  avatar.className = `avatar ${role === 'ai' ? 'ai' : 'user-av'}`;
+  avatar.textContent = role === 'ai' ? 'AI' : '私';
+
+  const bubble = document.createElement('div');
+  bubble.className = 'bubble';
+  bubble.innerHTML = formatText(content);
+
+  if (imageUrl) {
+    const img = document.createElement('img');
+    img.src = imageUrl;
+    bubble.appendChild(img);
+  }
+
+  msg.appendChild(avatar);
+  msg.appendChild(bubble);
+  chatEl.appendChild(msg);
+  chatEl.scrollTop = chatEl.scrollHeight;
+}
+
+function formatText(text) {
+  return text
+    .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+    .replace(/`(.*?)`/g, '<code>$1</code>')
+    .replace(/\n/g, '<br>');
+}
+
+function showTyping() {
+  const msg = document.createElement('div');
+  msg.className = 'message ai';
+  msg.id = 'typing';
+
+  const avatar = document.createElement('div');
+  avatar.className = 'avatar ai';
+  avatar.textContent = 'AI';
+
+  const bubble = document.createElement('div');
+  bubble.className = 'bubble';
+  bubble.innerHTML = '<div class="typing"><span></span><span></span><span></span></div>';
+
+  msg.appendChild(avatar);
+  msg.appendChild(bubble);
+  chatEl.appendChild(msg);
+  chatEl.scrollTop = chatEl.scrollHeight;
+}
+
+function hideTyping() {
+  const t = document.getElementById('typing');
+  if (t) t.remove();
+}
+
+async function sendMessage() {
+  const text = inputEl.value.trim();
+  if ((!text && pendingImages.length === 0) || isLoading) return;
+
+  isLoading = true;
+  sendBtn.disabled = true;
+  quickReplies.style.display = 'none';
+
+  // ユーザーメッセージを表示
+  const displayText = text || '（画像を送信）';
+  addMessage('user', displayText, pendingImages[0]?.url || null);
+
+  // メッセージ履歴に追加
+  const userContent = [];
+  if (text) userContent.push({ type: 'text', text });
+  pendingImages.forEach(img => {
+    userContent.push({
+      type: 'image',
+      source: { type: 'base64', media_type: img.type, data: img.data }
+    });
+  });
+
+  messages.push({ role: 'user', content: userContent.length === 1 && userContent[0].type === 'text' ? text : userContent });
+
+  // 入力をクリア
+  inputEl.value = '';
+  autoResize(inputEl);
+  pendingImages = [];
+  imgPreview.innerHTML = '';
+
+  showTyping();
+
+  try {
+    const res = await fetch('/api/chat', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ messages }),
+    });
+
+    const data = await res.json();
+    hideTyping();
+
+    if (data.content) {
+      addMessage('ai', data.content);
+      messages.push({ role: 'assistant', content: data.content });
+
+      // トークン取得完了を検知
+      if (data.content.includes('トークン') && (data.content.includes('取得できました') || data.content.includes('完了') || data.content.includes('EAA'))) {
+        document.getElementById('completeSection').classList.add('show');
+      }
+
+      // ステップ更新
+      updateStep(data.content);
+    }
+
+  } catch (e) {
+    hideTyping();
+    addMessage('ai', 'エラーが発生しました。もう一度お試しください。');
+  }
+
+  isLoading = false;
+  sendBtn.disabled = false;
+  setTimeout(() => { quickReplies.style.display = 'flex'; }, 1000);
+}
+
+function sendQuick(text) {
+  inputEl.value = text;
+  sendMessage();
+}
+
+function handleKey(e) {
+  if (e.key === 'Enter' && !e.shiftKey) {
+    e.preventDefault();
+    sendMessage();
+  }
+}
+
+function autoResize(el) {
+  el.style.height = 'auto';
+  el.style.height = Math.min(el.scrollHeight, 100) + 'px';
+}
+
+function handleFiles(e) {
+  const files = Array.from(e.target.files);
+  files.forEach(file => {
+    const reader = new FileReader();
+    reader.onload = ev => {
+      const base64 = ev.target.result.split(',')[1];
+      const url    = ev.target.result;
+      pendingImages.push({ data: base64, type: file.type, url });
+
+      const item = document.createElement('div');
+      item.className = 'img-preview-item';
+      item.innerHTML = `
+        <img src="${url}">
+        <button class="remove" onclick="removeImage(${pendingImages.length - 1}, this)">×</button>
+      `;
+      imgPreview.appendChild(item);
+    };
+    reader.readAsDataURL(file);
+  });
+  e.target.value = '';
+}
+
+function removeImage(idx, btn) {
+  pendingImages.splice(idx, 1);
+  btn.parentElement.remove();
+}
+
+function updateStep(content) {
+  const steps = document.querySelectorAll('.step');
+  const keywords = [
+    ['Facebookページ', 'FBページ'],
+    ['Instagram', 'IG連携', 'リンク'],
+    ['アプリを作成', 'developers.facebook', 'ユースケース'],
+    ['システムユーザー', 'iginsights-bot'],
+    ['アセット', '割り当て'],
+    ['トークンを生成', 'EAA', 'トークンを生成'],
+    ['完了', '設定完了', '送付'],
+  ];
+
+  keywords.forEach((kws, i) => {
+    if (kws.some(kw => content.includes(kw))) {
+      steps.forEach(s => s.classList.remove('active'));
+      if (steps[i]) steps[i].classList.add('active');
+      for (let j = 0; j < i; j++) {
+        steps[j].classList.add('done');
+        steps[j].classList.remove('active');
+      }
+    }
+  });
+}
+
+function showTokenForm() {
+  window.location.href = '/token-submit.html';
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>L-A-I トークン送付</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background: #0a0a0f;
+    color: #f0efe8;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    min-height: 100dvh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+  }
+
+  .card {
+    background: #111118;
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 20px;
+    padding: 32px 28px;
+    max-width: 480px;
+    width: 100%;
+  }
+
+  .logo {
+    font-size: 20px;
+    font-weight: 700;
+    margin-bottom: 8px;
+    letter-spacing: -0.02em;
+  }
+
+  .logo span { color: #c8f564; }
+
+  .title {
+    font-size: 22px;
+    font-weight: 700;
+    margin-bottom: 8px;
+    letter-spacing: -0.02em;
+  }
+
+  .desc {
+    font-size: 13px;
+    color: #9998a0;
+    line-height: 1.6;
+    margin-bottom: 28px;
+  }
+
+  .field { margin-bottom: 20px; }
+
+  label {
+    display: block;
+    font-size: 12px;
+    font-weight: 600;
+    color: #9998a0;
+    letter-spacing: 0.05em;
+    margin-bottom: 8px;
+  }
+
+  input, textarea {
+    width: 100%;
+    background: #1a1a24;
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 10px;
+    padding: 12px 14px;
+    color: #f0efe8;
+    font-size: 14px;
+    outline: none;
+    transition: border-color 0.2s;
+    font-family: inherit;
+  }
+
+  input:focus, textarea:focus {
+    border-color: rgba(200,245,100,0.4);
+  }
+
+  textarea {
+    resize: vertical;
+    min-height: 80px;
+    font-family: monospace;
+    font-size: 12px;
+  }
+
+  .hint {
+    font-size: 11px;
+    color: #5a5960;
+    margin-top: 6px;
+    line-height: 1.5;
+  }
+
+  .submit-btn {
+    width: 100%;
+    padding: 14px;
+    background: #c8f564;
+    color: #0a0a0f;
+    border: none;
+    border-radius: 12px;
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: opacity 0.2s;
+    margin-top: 8px;
+  }
+
+  .submit-btn:hover { opacity: 0.85; }
+  .submit-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+  .success {
+    display: none;
+    text-align: center;
+    padding: 20px 0;
+  }
+
+  .success-icon {
+    font-size: 48px;
+    margin-bottom: 16px;
+  }
+
+  .success-title {
+    font-size: 20px;
+    font-weight: 700;
+    margin-bottom: 8px;
+  }
+
+  .success-desc {
+    font-size: 14px;
+    color: #9998a0;
+    line-height: 1.6;
+  }
+
+  .error-msg {
+    color: #ff6b6b;
+    font-size: 12px;
+    margin-top: 12px;
+    display: none;
+  }
+</style>
+</head>
+<body>
+<div class="card">
+  <div class="logo">L-<span>A</span>-I</div>
+
+  <div id="formSection">
+    <div class="title">設定完了！</div>
+    <div class="desc">
+      取得したアクセストークンとInstagramユーザーIDを送付してください。
+      確認後、翌月曜日からレポートが届き始めます。
+    </div>
+
+    <div class="field">
+      <label>お名前 / 会社名</label>
+      <input type="text" id="name" placeholder="山田太郎 / 株式会社〇〇">
+    </div>
+
+    <div class="field">
+      <label>メールアドレス</label>
+      <input type="email" id="email" placeholder="your@email.com">
+      <div class="hint">申し込み時に使用したメールアドレスを入力してください</div>
+    </div>
+
+    <div class="field">
+      <label>Instagramユーザー名</label>
+      <input type="text" id="igUsername" placeholder="@your_account">
+    </div>
+
+    <div class="field">
+      <label>IG_USER_ID</label>
+      <input type="text" id="igUserId" placeholder="17841444000000000">
+      <div class="hint">数字のみの長いIDです。AIサポートで確認した値を入力してください</div>
+    </div>
+
+    <div class="field">
+      <label>アクセストークン</label>
+      <textarea id="token" placeholder="EAAxxxxxxxxxxxxx...（EAAで始まる長い文字列）"></textarea>
+      <div class="hint">EAAで始まる長い文字列です。全てコピーして貼り付けてください</div>
+    </div>
+
+    <button class="submit-btn" id="submitBtn" onclick="submitToken()">
+      送付して設定完了 →
+    </button>
+
+    <div class="error-msg" id="errorMsg">
+      送信に失敗しました。もう一度お試しください。
+    </div>
+  </div>
+
+  <div class="success" id="successSection">
+    <div class="success-icon">🎉</div>
+    <div class="success-title">設定完了！</div>
+    <div class="success-desc">
+      ありがとうございます。<br>
+      内容を確認後、翌月曜日からレポートが届き始めます。<br><br>
+      ご不明な点があればいつでもAIサポートにご連絡ください。
+    </div>
+  </div>
+</div>
+
+<script>
+async function submitToken() {
+  const name       = document.getElementById('name').value.trim();
+  const email      = document.getElementById('email').value.trim();
+  const igUsername = document.getElementById('igUsername').value.trim();
+  const igUserId   = document.getElementById('igUserId').value.trim();
+  const token      = document.getElementById('token').value.trim();
+
+  if (!name || !email || !igUserId || !token) {
+    alert('全ての項目を入力してください');
+    return;
+  }
+
+  if (!token.startsWith('EAA')) {
+    alert('トークンはEAAで始まる文字列です。正しいトークンを入力してください');
+    return;
+  }
+
+  const btn = document.getElementById('submitBtn');
+  btn.disabled = true;
+  btn.textContent = '送信中...';
+
+  try {
+    const res = await fetch('/api/submit-token', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name, email, igUsername, igUserId, token }),
+    });
+
+    if (res.ok) {
+      document.getElementById('formSection').style.display = 'none';
+      document.getElementById('successSection').style.display = 'block';
+    } else {
+      throw new Error('送信失敗');
+    }
+  } catch (e) {
+    document.getElementById('errorMsg').style.display = 'block';
+    btn.disabled = false;
+    btn.textContent = '送付して設定完了 →';
+  }
+}
+</script>
+</body>
+</html>
