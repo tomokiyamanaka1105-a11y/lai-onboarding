@@ -258,7 +258,27 @@ async function uploadToGemini(file) {
   const uploadProg   = document.getElementById('uploadProgress');
   uploadProg.style.display = 'block';
 
-  // Step 1: Start resumable upload
+  // Step 1: Vercel経由でアップロード
+  const reader2 = new FileReader();
+  const base64 = await new Promise(resolve => {
+    reader2.onload = e => resolve(e.target.result.split(',')[1]);
+    reader2.readAsDataURL(file);
+  });
+
+  const uploadApiRes = await fetch('/api/upload-video', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ videoBase64: base64, mimeType: file.type, fileName: file.name }),
+  });
+  const uploadApiJson = await uploadApiRes.json();
+  if (!uploadApiJson.fileUri) throw new Error(uploadApiJson.error || 'アップロード失敗');
+
+  progressBar.style.width = '100%';
+  progressText.textContent = 'アップロード完了！';
+  setTimeout(() => { uploadProg.style.display = 'none'; }, 1000);
+  return uploadApiJson.fileUri;
+
+  // 以下は削除（到達しない）
   const startRes = await fetch(
     `https://generativelanguage.googleapis.com/upload/v1beta/files?key=${GEMINI_API_KEY}`,
     {
