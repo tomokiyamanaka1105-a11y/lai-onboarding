@@ -215,11 +215,46 @@ function updateImageUI(hasImage) {
 // ── File handling ──
 function handleFile(e) {
   const f = e.target.files[0]; if (!f) return;
+
+  // 動画の場合は最初のフレームを画像として抽出
+  if (f.type.startsWith('video')) {
+    const video = document.createElement('video');
+    const url   = URL.createObjectURL(f);
+    video.src   = url;
+    video.muted = true;
+    video.playsInline = true;
+
+    video.addEventListener('loadeddata', () => {
+      video.currentTime = 0.5;
+    });
+
+    video.addEventListener('seeked', () => {
+      const canvas = document.createElement('canvas');
+      canvas.width  = video.videoWidth;
+      canvas.height = video.videoHeight;
+      canvas.getContext('2d').drawImage(video, 0, 0);
+      const dataUrl = canvas.toDataURL('image/jpeg', 0.85);
+      attachedImage = {
+        data: dataUrl.split(',')[1],
+        type: 'image/jpeg',
+        url:  dataUrl,
+      };
+      document.getElementById('previewThumb').src = dataUrl;
+      updateImageUI(true);
+      URL.revokeObjectURL(url);
+    });
+
+    video.load();
+    e.target.value = '';
+    return;
+  }
+
+  // 画像の場合
   const r = new FileReader();
   r.onload = ev => {
     attachedImage = {
       data: ev.target.result.split(',')[1],
-      type: f.type.startsWith('video') ? 'image/jpeg' : f.type,
+      type: f.type,
       url:  ev.target.result,
     };
     document.getElementById('previewThumb').src = ev.target.result;
