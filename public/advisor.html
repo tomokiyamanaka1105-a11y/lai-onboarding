@@ -15,7 +15,6 @@
     --coral: #ff6b6b; --coral2: rgba(255,107,107,0.1);
   }
   body { background: var(--bg); color: var(--text); font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; height: 100dvh; display: flex; flex-direction: column; overflow: hidden; }
-
   .header { padding: 14px 20px; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 12px; flex-shrink: 0; }
   .logo { font-size: 18px; font-weight: 700; letter-spacing: -0.02em; }
   .logo span { color: var(--accent); }
@@ -23,7 +22,6 @@
   .status { margin-left: auto; font-size: 11px; color: var(--text2); display: flex; align-items: center; gap: 5px; }
   .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--accent); animation: pulse 2s infinite; }
   @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
-
   .chat { flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 14px; }
   .message { display: flex; gap: 10px; animation: fadeIn 0.3s ease; }
   @keyframes fadeIn { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:translateY(0)} }
@@ -40,66 +38,56 @@
   .bubble code { background: var(--bg3); padding: 1px 5px; border-radius: 4px; font-family: monospace; font-size: 12px; color: var(--accent); }
   .bubble ul, .bubble ol { padding-left: 18px; margin: 6px 0; }
   .bubble li { margin: 3px 0; }
-
-  /* AI model badge in bubble */
-  .model-badge { display: inline-flex; align-items: center; gap: 4px; font-size: 10px; font-weight: 600; padding: 2px 7px; border-radius: 100px; margin-bottom: 8px; }
-  .model-badge.gemini { background: rgba(56,189,248,0.1); color: var(--blue); border: 1px solid rgba(56,189,248,0.2); }
-  .model-badge.claude { background: var(--accent2); color: var(--accent); border: 1px solid rgba(200,245,100,0.2); }
-
+  .model-badge { display: inline-flex; align-items: center; gap: 4px; font-size: 10px; font-weight: 600; padding: 2px 7px; border-radius: 100px; margin-bottom: 6px; }
+  .model-badge.gemini { background: var(--blue2); color: var(--blue); border: 1px solid rgba(56,189,248,0.2); }
   .typing { display: flex; gap: 4px; padding: 4px 0; }
   .typing span { width: 6px; height: 6px; border-radius: 50%; background: var(--text2); animation: bounce 1.2s infinite; }
   .typing span:nth-child(2) { animation-delay: 0.2s; }
   .typing span:nth-child(3) { animation-delay: 0.4s; }
   @keyframes bounce { 0%,60%,100%{transform:translateY(0)} 30%{transform:translateY(-6px)} }
-
-  /* Loading step indicator */
-  .loading-steps { padding: 8px 0; }
-  .loading-step { font-size: 12px; color: var(--text2); display: flex; align-items: center; gap: 8px; padding: 3px 0; }
+  .loading-steps { padding: 4px 0; }
+  .loading-step { font-size: 12px; color: var(--text2); display: flex; align-items: center; gap: 8px; padding: 4px 0; transition: color 0.3s; }
   .loading-step.done { color: var(--accent); }
   .loading-step.active { color: var(--text); }
-  .step-icon { width: 14px; text-align: center; }
-
+  .step-icon { width: 16px; text-align: center; font-size: 13px; }
   .bottom { flex-shrink: 0; border-top: 1px solid var(--border); }
-
-  /* Attachment preview */
   .attachment-area { display: none; padding: 12px 20px 0; }
   .attachment-area.show { display: flex; gap: 10px; align-items: flex-start; }
   .attach-thumb { position: relative; width: 72px; height: 72px; flex-shrink: 0; }
   .attach-thumb img, .attach-thumb video { width: 100%; height: 100%; object-fit: cover; border-radius: 10px; border: 1px solid var(--border); }
   .attach-type { position: absolute; bottom: 4px; left: 4px; font-size: 9px; font-weight: 700; padding: 1px 5px; border-radius: 100px; }
-  .attach-type.video { background: var(--blue); color: #fff; }
+  .attach-type.video { background: var(--blue); color: #000; }
   .attach-type.image { background: var(--purple); color: #fff; }
   .remove-attach { position: absolute; top: -5px; right: -5px; width: 18px; height: 18px; border-radius: 50%; background: #ff4444; color: white; font-size: 11px; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; }
-  .attach-info { font-size: 12px; color: var(--text2); padding-top: 4px; line-height: 1.6; }
-  .attach-info .highlight { color: var(--purple); font-weight: 600; font-size: 12px; }
-  .attach-info .video-highlight { color: var(--blue); font-weight: 600; font-size: 12px; }
-
-  /* Content action buttons */
+  .attach-info { font-size: 12px; color: var(--text2); padding-top: 4px; line-height: 1.7; }
+  .attach-info .hl { font-weight: 600; }
+  .attach-info .hl.blue { color: var(--blue); }
+  .attach-info .hl.purple { color: var(--purple); }
+  .upload-progress { margin-top: 6px; }
+  .progress-bar-wrap { height: 3px; background: var(--border); border-radius: 2px; overflow: hidden; }
+  .progress-bar { height: 100%; background: var(--blue); border-radius: 2px; transition: width 0.3s; width: 0%; }
+  .progress-text { font-size: 10px; color: var(--text2); margin-top: 3px; }
   .content-actions { display: none; padding: 10px 20px 0; gap: 6px; flex-wrap: wrap; }
   .content-actions.show { display: flex; }
   .ca-btn { padding: 6px 14px; border-radius: 100px; font-size: 11px; font-weight: 600; cursor: pointer; transition: all 0.2s; white-space: nowrap; border: 1px solid; }
   .ca-btn.green  { border-color: rgba(200,245,100,0.3); background: var(--accent2); color: var(--accent); }
   .ca-btn.purple { border-color: rgba(167,139,250,0.3); background: var(--purple2); color: var(--purple); }
-  .ca-btn.blue   { border-color: rgba(56,189,248,0.3);   background: var(--blue2);   color: var(--blue); }
-  .ca-btn.coral  { border-color: rgba(255,107,107,0.3);  background: var(--coral2);  color: var(--coral); }
+  .ca-btn.blue   { border-color: rgba(56,189,248,0.3);  background: var(--blue2);   color: var(--blue); }
+  .ca-btn.coral  { border-color: rgba(255,107,107,0.3); background: var(--coral2);  color: var(--coral); }
   .ca-btn:hover { opacity: 0.8; }
-
-  /* Video note */
+  .ca-btn:disabled { opacity: 0.4; cursor: not-allowed; }
   .video-note { margin: 8px 20px 0; padding: 8px 12px; background: var(--blue2); border: 1px solid rgba(56,189,248,0.2); border-radius: 10px; font-size: 11px; color: var(--blue); display: none; }
   .video-note.show { display: block; }
-
   .quick-replies { padding: 10px 20px 0; display: flex; flex-wrap: wrap; gap: 6px; }
   .quick-btn { padding: 6px 12px; border-radius: 100px; border: 1px solid var(--border); background: var(--bg2); color: var(--text2); font-size: 11px; cursor: pointer; transition: all 0.2s; white-space: nowrap; }
   .quick-btn:hover { border-color: var(--accent); color: var(--accent); background: var(--accent2); }
-
   .input-area { padding: 10px 20px 20px; }
   .input-box { background: var(--bg2); border: 1px solid var(--border); border-radius: 14px; padding: 10px 14px; display: flex; gap: 10px; align-items: flex-end; transition: border-color 0.2s; }
   .input-box:focus-within { border-color: rgba(200,245,100,0.4); }
   .input-box textarea { flex: 1; background: none; border: none; outline: none; color: var(--text); font-size: 14px; line-height: 1.5; resize: none; max-height: 100px; min-height: 22px; font-family: inherit; }
   .input-box textarea::placeholder { color: var(--text2); }
   .img-btn { width: 32px; height: 32px; border-radius: 8px; border: 1px solid var(--border); background: var(--bg3); color: var(--text2); cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 15px; transition: all 0.2s; flex-shrink: 0; }
-  .img-btn:hover { border-color: var(--purple); color: var(--purple); background: var(--purple2); }
-  .img-btn.has-file { border-color: var(--purple); color: var(--purple); background: var(--purple2); }
+  .img-btn:hover, .img-btn.has-file { border-color: var(--purple); color: var(--purple); background: var(--purple2); }
   .send-btn { width: 32px; height: 32px; border-radius: 8px; border: none; background: var(--accent); color: var(--bg); cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 14px; transition: opacity 0.2s; flex-shrink: 0; }
   .send-btn:disabled { opacity: 0.3; cursor: not-allowed; }
   #file-input { display: none; }
@@ -118,12 +106,18 @@
 <div class="bottom">
   <div class="attachment-area" id="attachArea">
     <div class="attach-thumb">
-      <img id="attachThumbImg" src="" alt="" style="display:none;">
-      <video id="attachThumbVideo" muted playsinline style="display:none;"></video>
-      <span class="attach-type" id="attachType"></span>
+      <img id="attachImg" src="" alt="" style="display:none;">
+      <video id="attachVideo" muted playsinline style="display:none;"></video>
+      <span class="attach-type" id="attachTypeLabel"></span>
       <button class="remove-attach" onclick="removeAttachment()">×</button>
     </div>
-    <div class="attach-info" id="attachInfo"></div>
+    <div class="attach-info" id="attachInfo">
+      <div id="uploadStatus"></div>
+      <div class="upload-progress" id="uploadProgress" style="display:none;">
+        <div class="progress-bar-wrap"><div class="progress-bar" id="progressBar"></div></div>
+        <div class="progress-text" id="progressText">アップロード中...</div>
+      </div>
+    </div>
   </div>
 
   <div class="video-note" id="videoNote">
@@ -131,10 +125,10 @@
   </div>
 
   <div class="content-actions" id="contentActions">
-    <button class="ca-btn green"  onclick="runContent('evaluate')">📊 投稿評価</button>
-    <button class="ca-btn purple" onclick="runContent('caption')">✏️ キャプション</button>
-    <button class="ca-btn blue"   onclick="runContent('hashtag')"># ハッシュタグ</button>
-    <button class="ca-btn coral"  onclick="runContent('all')">✨ 全部まとめて</button>
+    <button class="ca-btn green"  id="btnEval"    onclick="runContent('evaluate')">📊 投稿評価</button>
+    <button class="ca-btn purple" id="btnCaption" onclick="runContent('caption')">✏️ キャプション</button>
+    <button class="ca-btn blue"   id="btnHash"    onclick="runContent('hashtag')"># ハッシュタグ</button>
+    <button class="ca-btn coral"  id="btnAll"     onclick="runContent('all')">✨ 全部まとめて</button>
   </div>
 
   <div class="quick-replies" id="quickReplies">
@@ -151,7 +145,7 @@
     <div class="input-box">
       <textarea id="input" placeholder="何でも聞いてください、または画像・動画を添付してください..." rows="1"
         onkeydown="handleKey(event)" oninput="autoResize(this)"></textarea>
-      <button class="img-btn" id="imgBtn" onclick="document.getElementById('file-input').click()" title="画像・動画を添付">📎</button>
+      <button class="img-btn" id="imgBtn" onclick="document.getElementById('file-input').click()">📎</button>
       <button class="send-btn" id="sendBtn" onclick="sendMessage()">↑</button>
     </div>
     <input type="file" id="file-input" accept="image/*,video/*" onchange="handleFile(event)">
@@ -168,10 +162,12 @@ const quickReplies   = document.getElementById('quickReplies');
 const videoNote      = document.getElementById('videoNote');
 const imgBtn         = document.getElementById('imgBtn');
 
-let messages     = [];
-let clientId     = 'C001';
-let isLoading    = false;
-let attached     = null; // { data, type, url, isVideo, fileName }
+const GEMINI_API_KEY = ''; // ← ここにGemini APIキーを入れる
+
+let messages  = [];
+let clientId  = 'C001';
+let isLoading = false;
+let attached  = null; // { data, type, url, isVideo, fileUri(動画時) }
 
 window.addEventListener('load', () => {
   addMsg('ai', 'こんにちは！L-A-Iアドバイザーです。\n\nJKTとWKSのデータを参照してリアルタイムでアドバイスします。\n\n**📎 画像・動画を添付**してコンテンツ評価・キャプション・ハッシュタグを生成できます。\n動画は**Gemini AIが全フレームを分析**し、Claudeが日本語アドバイスを生成します。\n\n何でも聞いてください！');
@@ -183,35 +179,27 @@ function fmt(t) {
           .replace(/\n/g, '<br>');
 }
 
-function addMsg(role, content, mediaUrl = null, isVideo = false, modelInfo = null) {
+function addMsg(role, content, mediaUrl = null, isVideo = false, isGemini = false) {
   const d  = document.createElement('div'); d.className = `message ${role}`;
   const av = document.createElement('div'); av.className = `avatar ${role === 'ai' ? 'ai' : 'me'}`; av.textContent = role === 'ai' ? 'AI' : '私';
   const b  = document.createElement('div'); b.className = 'bubble';
 
-  if (modelInfo) {
-    const badge = document.createElement('div');
-    badge.className = `model-badge ${modelInfo}`;
-    badge.textContent = modelInfo === 'gemini' ? '🎬 Gemini + Claude' : '🤖 Claude';
-    b.appendChild(badge);
-    b.appendChild(document.createElement('br'));
+  if (isGemini) {
+    const badge = document.createElement('div'); badge.className = 'model-badge gemini';
+    badge.textContent = '🎬 Gemini + Claude'; b.appendChild(badge);
   }
 
-  const textNode = document.createElement('div');
-  textNode.innerHTML = fmt(content);
-  b.appendChild(textNode);
+  const txt = document.createElement('div'); txt.innerHTML = fmt(content); b.appendChild(txt);
 
   if (mediaUrl) {
     if (isVideo) {
-      const v = document.createElement('video'); v.src = mediaUrl; v.controls = true; v.muted = true;
-      b.appendChild(v);
+      const v = document.createElement('video'); v.src = mediaUrl; v.controls = true; v.muted = true; b.appendChild(v);
     } else {
-      const i = document.createElement('img'); i.src = mediaUrl;
-      b.appendChild(i);
+      const i = document.createElement('img'); i.src = mediaUrl; b.appendChild(i);
     }
   }
 
-  d.appendChild(av); d.appendChild(b);
-  chatEl.appendChild(d);
+  d.appendChild(av); d.appendChild(b); chatEl.appendChild(d);
   chatEl.scrollTop = chatEl.scrollHeight;
 }
 
@@ -223,9 +211,10 @@ function showTyping(steps = null) {
   if (steps) {
     const sl = document.createElement('div'); sl.className = 'loading-steps'; sl.id = 'loadingSteps';
     steps.forEach((s, i) => {
-      const row = document.createElement('div'); row.className = `loading-step ${i === 0 ? 'active' : ''}`;
+      const row = document.createElement('div');
+      row.className = `loading-step ${i === 0 ? 'active' : ''}`;
       row.id = `step-${i}`;
-      row.innerHTML = `<span class="step-icon">${i === 0 ? '⟳' : '○'}</span> ${s}`;
+      row.innerHTML = `<span class="step-icon">${i === 0 ? '⟳' : '○'}</span><span>${s}</span>`;
       sl.appendChild(row);
     });
     b.appendChild(sl);
@@ -233,20 +222,26 @@ function showTyping(steps = null) {
     b.innerHTML = '<div class="typing"><span></span><span></span><span></span></div>';
   }
 
-  d.appendChild(av); d.appendChild(b);
-  chatEl.appendChild(d);
+  d.appendChild(av); d.appendChild(b); chatEl.appendChild(d);
   chatEl.scrollTop = chatEl.scrollHeight;
 }
 
-function updateStep(stepIdx) {
-  const steps = document.querySelectorAll('.loading-step');
-  steps.forEach((s, i) => {
-    if (i < stepIdx) { s.className = 'loading-step done'; s.querySelector('.step-icon').textContent = '✓'; }
-    else if (i === stepIdx) { s.className = 'loading-step active'; s.querySelector('.step-icon').textContent = '⟳'; }
+function updateStep(idx) {
+  document.querySelectorAll('.loading-step').forEach((s, i) => {
+    const icon = s.querySelector('.step-icon');
+    if (i < idx)       { s.className = 'loading-step done';   icon.textContent = '✓'; }
+    else if (i === idx) { s.className = 'loading-step active'; icon.textContent = '⟳'; }
+    else               { s.className = 'loading-step';        icon.textContent = '○'; }
   });
 }
 
 function hideTyping() { const t = document.getElementById('typing'); if (t) t.remove(); }
+
+function setContentBtns(disabled) {
+  ['btnEval','btnCaption','btnHash','btnAll'].forEach(id => {
+    document.getElementById(id).disabled = disabled;
+  });
+}
 
 function updateAttachUI(hasFile) {
   attachArea.classList.toggle('show', hasFile);
@@ -256,36 +251,124 @@ function updateAttachUI(hasFile) {
   videoNote.classList.toggle('show', hasFile && attached?.isVideo);
 }
 
-function handleFile(e) {
+// ── File upload to Gemini File API ──
+async function uploadToGemini(file) {
+  const progressBar  = document.getElementById('progressBar');
+  const progressText = document.getElementById('progressText');
+  const uploadProg   = document.getElementById('uploadProgress');
+  uploadProg.style.display = 'block';
+
+  // Step 1: Start resumable upload
+  const startRes = await fetch(
+    `https://generativelanguage.googleapis.com/upload/v1beta/files?key=${GEMINI_API_KEY}`,
+    {
+      method: 'POST',
+      headers: {
+        'X-Goog-Upload-Protocol': 'resumable',
+        'X-Goog-Upload-Command': 'start',
+        'X-Goog-Upload-Header-Content-Length': file.size,
+        'X-Goog-Upload-Header-Content-Type': file.type,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ file: { display_name: file.name } }),
+    }
+  );
+
+  const uploadUrl = startRes.headers.get('X-Goog-Upload-URL');
+  if (!uploadUrl) throw new Error('Upload URLの取得に失敗しました');
+
+  progressBar.style.width = '30%';
+  progressText.textContent = 'Geminiにアップロード中...';
+
+  // Step 2: Upload file
+  const uploadRes = await fetch(uploadUrl, {
+    method: 'POST',
+    headers: {
+      'X-Goog-Upload-Command': 'upload, finalize',
+      'X-Goog-Upload-Offset': '0',
+      'Content-Type': file.type,
+    },
+    body: file,
+  });
+
+  progressBar.style.width = '80%';
+  progressText.textContent = '処理中...';
+
+  const uploadJson = await uploadRes.json();
+  const fileUri    = uploadJson?.file?.uri;
+  const fileName   = uploadJson?.file?.name;
+
+  if (!fileUri) throw new Error('ファイルURIの取得に失敗: ' + JSON.stringify(uploadJson));
+
+  // Step 3: Wait for processing
+  let state = uploadJson?.file?.state;
+  let attempts = 0;
+  while (state === 'PROCESSING' && attempts < 20) {
+    await new Promise(r => setTimeout(r, 2000));
+    const statusRes  = await fetch(`https://generativelanguage.googleapis.com/v1beta/${fileName}?key=${GEMINI_API_KEY}`);
+    const statusJson = await statusRes.json();
+    state = statusJson?.state;
+    attempts++;
+    progressBar.style.width = `${80 + attempts * 1}%`;
+  }
+
+  progressBar.style.width = '100%';
+  progressText.textContent = 'アップロード完了！';
+  setTimeout(() => { uploadProg.style.display = 'none'; }, 1000);
+
+  return fileUri;
+}
+
+async function handleFile(e) {
   const f = e.target.files[0]; if (!f) return;
   const isVideo = f.type.startsWith('video');
-  const r = new FileReader();
-  r.onload = ev => {
-    attached = { data: ev.target.result.split(',')[1], type: f.type, url: ev.target.result, isVideo, fileName: f.name };
-
-    if (isVideo) {
-      document.getElementById('attachThumbImg').style.display = 'none';
-      const vEl = document.getElementById('attachThumbVideo');
-      vEl.src = ev.target.result; vEl.style.display = 'block';
-      document.getElementById('attachType').textContent = '動画'; document.getElementById('attachType').className = 'attach-type video';
-      document.getElementById('attachInfo').innerHTML = `<span class="video-highlight">🎬 動画を添付しました</span><br>Gemini AIが全フレームを分析します`;
-    } else {
-      document.getElementById('attachThumbVideo').style.display = 'none';
-      const iEl = document.getElementById('attachThumbImg');
-      iEl.src = ev.target.result; iEl.style.display = 'block';
-      document.getElementById('attachType').textContent = '画像'; document.getElementById('attachType').className = 'attach-type image';
-      document.getElementById('attachInfo').innerHTML = `<span class="highlight">🖼️ 画像を添付しました</span><br>下のボタンで分析してください`;
-    }
-    updateAttachUI(true);
-  };
-  r.readAsDataURL(f);
   e.target.value = '';
+
+  // プレビュー表示
+  const url = URL.createObjectURL(f);
+  if (isVideo) {
+    document.getElementById('attachImg').style.display = 'none';
+    const vEl = document.getElementById('attachVideo'); vEl.src = url; vEl.style.display = 'block';
+    document.getElementById('attachTypeLabel').textContent = '動画';
+    document.getElementById('attachTypeLabel').className = 'attach-type video';
+  } else {
+    document.getElementById('attachVideo').style.display = 'none';
+    const iEl = document.getElementById('attachImg'); iEl.src = url; iEl.style.display = 'block';
+    document.getElementById('attachTypeLabel').textContent = '画像';
+    document.getElementById('attachTypeLabel').className = 'attach-type image';
+  }
+
+  attached = { type: f.type, url, isVideo, fileUri: null, data: null };
+  updateAttachUI(true);
+  setContentBtns(true);
+
+  if (isVideo) {
+    document.getElementById('uploadStatus').innerHTML = `<span class="hl blue">🎬 動画を添付しました</span><br>Gemini File APIにアップロード中...`;
+    try {
+      const fileUri = await uploadToGemini(f);
+      attached.fileUri = fileUri;
+      document.getElementById('uploadStatus').innerHTML = `<span class="hl blue">🎬 動画 アップロード完了</span><br>下のボタンで分析してください`;
+      setContentBtns(false);
+    } catch (err) {
+      document.getElementById('uploadStatus').innerHTML = `<span style="color:#ff6b6b;">⚠️ アップロード失敗: ${err.message}</span>`;
+      attached = null; updateAttachUI(false);
+    }
+  } else {
+    // 画像: Base64で保持
+    const r = new FileReader();
+    r.onload = ev => {
+      attached.data = ev.target.result.split(',')[1];
+      document.getElementById('uploadStatus').innerHTML = `<span class="hl purple">🖼️ 画像を添付しました</span><br>下のボタンで分析してください`;
+      setContentBtns(false);
+    };
+    r.readAsDataURL(f);
+  }
 }
 
 function removeAttachment() {
   attached = null;
-  document.getElementById('attachThumbImg').src = ''; document.getElementById('attachThumbImg').style.display = 'none';
-  document.getElementById('attachThumbVideo').src = ''; document.getElementById('attachThumbVideo').style.display = 'none';
+  document.getElementById('attachImg').src = ''; document.getElementById('attachImg').style.display = 'none';
+  document.getElementById('attachVideo').src = ''; document.getElementById('attachVideo').style.display = 'none';
   updateAttachUI(false);
 }
 
@@ -295,78 +378,79 @@ async function sendMessage(overridePrompt = null) {
   if (isLoading) return;
   isLoading = true; sendBtn.disabled = true;
 
-  const displayText = text || (attached?.isVideo ? '（動画を送信）' : '（画像を送信）');
-  addMsg('user', displayText, attached?.url || null, attached?.isVideo || false);
+  addMsg('user', text || (attached?.isVideo ? '（動画を送信）' : '（画像を送信）'), attached?.url, attached?.isVideo || false);
 
   const usedAttach = attached ? { ...attached } : null;
   if (!overridePrompt) { inputEl.value = ''; autoResize(inputEl); }
   attached = null; updateAttachUI(false);
 
-  if (usedAttach?.isVideo) {
-    // 動画: Gemini + Claude の2段階処理
+  if (usedAttach?.isVideo && usedAttach?.fileUri) {
+    // 動画: Gemini File API + Claude
     showTyping([
       'Geminiが動画を全フレーム分析中...',
       'Claudeが日本語アドバイスを生成中...',
     ]);
 
     try {
-      setTimeout(() => updateStep(0), 500);
-
       const res  = await fetch('/api/advisor-video', {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          videoData: usedAttach.data,
+          fileUri: usedAttach.fileUri,
           videoMimeType: usedAttach.type,
           clientId,
           prompt: text || '投稿として評価・改善点・キャプション案・ハッシュタグを提案してください。',
         }),
       });
+
+      updateStep(1);
       const data = await res.json();
-
-      setTimeout(() => updateStep(1), 100);
-      await new Promise(r => setTimeout(r, 800));
-
       hideTyping();
+
       if (data.content) {
-        addMsg('ai', data.content, null, false, 'gemini');
-        messages.push({ role: 'user', content: `[動画分析] ${text || '全部まとめて評価してください'}` });
+        addMsg('ai', data.content, null, false, true);
+        messages.push({ role: 'user',      content: `[動画分析] ${text || '評価してください'}` });
         messages.push({ role: 'assistant', content: data.content });
       } else {
-        addMsg('ai', `分析中にエラーが発生しました。\n\nGemini分析結果:\n${data.geminiAnalysis || 'なし'}`);
+        addMsg('ai', `分析エラーが発生しました。\n\nGemini分析結果:\n${data.geminiAnalysis || 'なし'}`);
       }
-    } catch (e) {
-      hideTyping();
-      addMsg('ai', `エラーが発生しました: ${e.message}`);
+    } catch (err) {
+      hideTyping(); addMsg('ai', `エラー: ${err.message}`);
     }
-  } else {
-    // 画像またはテキスト: Claude
-    const uc = [];
-    if (usedAttach) uc.push({ type: 'image', source: { type: 'base64', media_type: usedAttach.type, data: usedAttach.data } });
-    if (text) uc.push({ type: 'text', text });
-    const msgContent = uc.length === 1 && uc[0].type === 'text' ? text : uc;
-    messages.push({ role: 'user', content: msgContent });
 
+  } else if (usedAttach && !usedAttach.isVideo) {
+    // 画像: Claude
+    const uc = [
+      { type: 'image', source: { type: 'base64', media_type: usedAttach.type, data: usedAttach.data } },
+    ];
+    if (text) uc.push({ type: 'text', text });
+    messages.push({ role: 'user', content: uc });
     showTyping();
     try {
       const res  = await fetch('/api/advisor', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ messages, clientId }) });
       const data = await res.json();
       hideTyping();
-      if (data.content) {
-        addMsg('ai', data.content, null, false, usedAttach ? 'claude' : null);
-        messages.push({ role: 'assistant', content: data.content });
-      } else {
-        addMsg('ai', 'エラーが発生しました。もう一度お試しください。');
-      }
-    } catch (e) {
-      hideTyping(); addMsg('ai', 'エラーが発生しました。もう一度お試しください。');
-    }
+      if (data.content) { addMsg('ai', data.content); messages.push({ role: 'assistant', content: data.content }); }
+      else addMsg('ai', 'エラーが発生しました。');
+    } catch (e) { hideTyping(); addMsg('ai', 'エラーが発生しました。'); }
+
+  } else {
+    // テキストのみ: Claude
+    messages.push({ role: 'user', content: text });
+    showTyping();
+    try {
+      const res  = await fetch('/api/advisor', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ messages, clientId }) });
+      const data = await res.json();
+      hideTyping();
+      if (data.content) { addMsg('ai', data.content); messages.push({ role: 'assistant', content: data.content }); }
+      else addMsg('ai', 'エラーが発生しました。');
+    } catch (e) { hideTyping(); addMsg('ai', 'エラーが発生しました。'); }
   }
 
   isLoading = false; sendBtn.disabled = false;
 }
 
 function runContent(type) {
-  if (!attached) { alert('先にファイルを添付してください'); return; }
+  if (!attached && !document.getElementById('attachVideo').src) { alert('先にファイルを添付してください'); return; }
   const prompts = {
     evaluate: '投稿として詳しく評価してください。スコア・強み・改善点・予想パフォーマンスを過去データと比較して。',
     caption:  'この投稿に合うInstagramキャプションを3パターン生成してください。過去の成功投稿の傾向を踏まえて。インバウンド向けは日英バイリンガルで。',

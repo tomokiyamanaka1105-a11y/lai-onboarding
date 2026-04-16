@@ -1,20 +1,20 @@
 // api/advisor-video.js
-// 動画分析: Gemini で動画理解 → Claude で日本語アドバイス生成
+// 動画分析: Gemini File API で動画分析 → Claude で日本語アドバイス生成
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
-  const { videoData, videoMimeType, clientId, prompt } = req.body;
-  const GAS_API_URL      = process.env.GAS_API_URL;
-  const GEMINI_API_KEY   = process.env.GEMINI_API_KEY;
+  const { fileUri, videoMimeType, clientId, prompt } = req.body;
+  const GAS_API_URL       = process.env.GAS_API_URL;
+  const GEMINI_API_KEY    = process.env.GEMINI_API_KEY;
   const ANTHROPIC_API_KEY = process.env.ANTHROPIC_API_KEY;
 
   // ── Step 1: GASから過去データを取得 ──
   let contextData = '';
   try {
-    const gasRes = await fetch(`${GAS_API_URL}?clientId=${clientId || 'C001'}&type=all`);
+    const gasRes  = await fetch(`${GAS_API_URL}?clientId=${clientId || 'C001'}&type=all`);
     const gasJson = await gasRes.json();
     if (gasJson.success && gasJson.data) {
       gasJson.data.accounts.forEach(account => {
@@ -49,11 +49,7 @@ export default async function handler(req, res) {
     contextData = 'データ取得失敗';
   }
 
-  // ── Step 2: Geminiで動画を分析 ──
-  // カートレースなど高速動画を想定してFPS高めに設定
-  const isFastAction = videoMimeType?.includes('mp4') || videoMimeType?.includes('mov');
-  const fps = isFastAction ? 5 : 2;
-
+  // ── Step 2: Gemini で動画分析（File API経由）──
   let geminiAnalysis = '';
   try {
     const geminiRes = await fetch(
@@ -65,15 +61,15 @@ export default async function handler(req, res) {
           contents: [{
             parts: [
               {
-                inline_data: {
+                file_data: {
                   mime_type: videoMimeType || 'video/mp4',
-                  data: videoData,
+                  file_uri: fileUri,
                 },
               },
               {
                 text: `この動画を詳しく分析してください。以下の点を日本語で簡潔に報告してください:
 
-1. 動画の内容・シーン（何が映っているか、どんな動きがあるか）
+1. 動画の内容・シーン（何が映っているか、どんな動きがあるか、時系列で）
 2. Instagram投稿として見た場合の視覚的な強み・弱み
 3. 冒頭3秒のフック（視聴者の注意を引けているか）
 4. 動画の流れ・テンポ（飽きさせない構成か）
@@ -81,7 +77,7 @@ export default async function handler(req, res) {
 6. テキストやキャプションの視認性（あれば）
 7. 総合的な改善提案（具体的に）
 
-客観的な事実を中心に、箇条書きで報告してください。`,
+客観的な事実を中心に箇条書きで報告してください。`,
               },
             ],
           }],
@@ -94,16 +90,16 @@ export default async function handler(req, res) {
     );
 
     const geminiJson = await geminiRes.json();
-    geminiAnalysis = geminiJson?.candidates?.[0]?.content?.parts?.[0]?.text || 'Gemini分析失敗';
+    geminiAnalysis = geminiJson?.candidates?.[0]?.content?.parts?.[0]?.text || JSON.stringify(geminiJson);
   } catch (e) {
-    geminiAnalysis = `動画分析エラー: ${e.message}`;
+    geminiAnalysis = `Gemini分析エラー: ${e.message}`;
   }
 
-  // ── Step 3: Claudeで日本語アドバイスを生成 ──
+  // ── Step 3: Claude で日本語アドバイスを生成 ──
   const userPrompt = prompt || '投稿として評価・改善点・キャプション案・ハッシュタグを提案してください。';
 
   const claudeSystem = `あなたはL-A-Iの専属AIマーケティングコンサルタントです。
-Geminiが動画を分析した結果と、過去のInstagramアカウントデータを元に、
+Gemini AIが動画を全フレーム分析した結果と、過去のInstagramアカウントデータを元に、
 具体的で実用的なアドバイスを日本語で生成してください。
 
 === 過去のアカウントデータ ===
@@ -118,8 +114,7 @@ ${geminiAnalysis}
 - 動画分析結果と過去データを必ず組み合わせて回答する
 - 「過去のリール動画の平均リーチXX人と比べて...」のように具体的に比較する
 - 改善提案は「何を・どこを・どう変える」まで具体化する
-- 自然で読みやすい日本語で書く
-- 箇条書きと文章を適切に使い分ける`;
+- 自然で読みやすい日本語で書く`;
 
   try {
     const claudeRes = await fetch('https://api.anthropic.com/v1/messages', {
@@ -138,17 +133,13 @@ ${geminiAnalysis}
     });
 
     const claudeJson = await claudeRes.json();
-    const content = claudeJson?.content?.[0]?.text;
+    const content    = claudeJson?.content?.[0]?.text;
 
     if (!content) {
       return res.status(500).json({ error: 'Claude API Error', geminiAnalysis });
     }
 
-    return res.status(200).json({
-      content,
-      geminiAnalysis, // デバッグ用に含める
-      fps,
-    });
+    return res.status(200).json({ content, geminiAnalysis });
 
   } catch (e) {
     return res.status(500).json({ error: e.message, geminiAnalysis });
