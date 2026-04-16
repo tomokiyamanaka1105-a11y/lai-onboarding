@@ -722,7 +722,7 @@ function runContent(type) {
 }
 
 function sendQuick(t) { inputEl.value = t; sendMessage(); }
-function handleKey(e) { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); } }
+function handleKey(e) { if (e.key === 'Enter' && e.ctrlKey) { e.preventDefault(); sendMessage(); } }
 function autoResize(el) { el.style.height = 'auto'; el.style.height = Math.min(el.scrollHeight, 100) + 'px'; }
 
 // ── Chat log (Vercel KV) ──
