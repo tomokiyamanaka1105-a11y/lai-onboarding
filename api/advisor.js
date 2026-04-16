@@ -57,6 +57,23 @@ export default async function handler(req, res) {
           });
         }
 
+        if (account.adInsights?.length > 0) {
+          const totalSpend         = account.adInsights.reduce((s, a) => s + (Number(a.spend) || 0), 0);
+          const totalAdReach       = account.adInsights.reduce((s, a) => s + (Number(a.reach) || 0), 0);
+          const totalAdImpressions = account.adInsights.reduce((s, a) => s + (Number(a.impressions) || 0), 0);
+          const totalAdPlays       = account.adInsights.reduce((s, a) => s + (Number(a.plays) || 0), 0);
+          const totalAdClicks      = account.adInsights.reduce((s, a) => s + (Number(a.clicks) || 0), 0);
+          contextData += "\n広告実績（累計）:\n";
+          contextData += "  総広告費: ¥" + totalSpend.toLocaleString() + "\n";
+          contextData += "  広告リーチ: " + totalAdReach.toLocaleString() + "人\n";
+          contextData += "  広告インプレッション: " + totalAdImpressions.toLocaleString() + "回\n";
+          contextData += "  広告動画再生: " + totalAdPlays.toLocaleString() + "回\n";
+          contextData += "  広告クリック: " + totalAdClicks.toLocaleString() + "回\n";
+          const topAds = [...account.adInsights].sort((a, b) => (Number(b.reach)||0)-(Number(a.reach)||0)).slice(0,3);
+          contextData += "  リーチ上位広告:\n";
+          topAds.forEach((a, i) => { contextData += "    "+(i+1)+"位: リーチ"+a.reach+"人 ¥"+a.spend+" 「"+String(a.adName).substring(0,30)+"」\n"; });
+        }
+
         if (account.weeklyReports?.length > 0) {
           contextData += `週次レポート（直近）:\n`;
           account.weeklyReports.forEach(w => {
