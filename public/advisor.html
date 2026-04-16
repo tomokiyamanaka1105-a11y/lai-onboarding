@@ -14,6 +14,22 @@
     --blue: #38bdf8; --blue2: rgba(56,189,248,0.1);
     --coral: #ff6b6b; --coral2: rgba(255,107,107,0.1);
   }
+  /* Login screen */
+  .login-screen { position: fixed; inset: 0; background: var(--bg); display: flex; align-items: center; justify-content: center; z-index: 200; flex-direction: column; gap: 24px; }
+  .login-card { background: var(--bg2); border: 1px solid var(--border); border-radius: 20px; padding: 36px 32px; text-align: center; max-width: 360px; width: 90%; }
+  .login-logo { font-size: 32px; font-weight: 700; margin-bottom: 8px; }
+  .login-logo span { color: var(--accent); }
+  .login-tagline { font-size: 13px; color: var(--text2); margin-bottom: 28px; line-height: 1.6; }
+  .login-divider { height: 1px; background: var(--border); margin: 20px 0; }
+  .login-note { font-size: 11px; color: var(--text2); margin-top: 16px; line-height: 1.5; }
+
+  /* User info in header */
+  .user-info { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+  .user-avatar { width: 28px; height: 28px; border-radius: 50%; border: 1px solid var(--border); }
+  .user-name { font-size: 11px; color: var(--text2); max-width: 80px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .logout-btn { font-size: 10px; padding: 3px 8px; border-radius: 100px; border: 1px solid var(--border); background: none; color: var(--text2); cursor: pointer; }
+  .logout-btn:hover { border-color: var(--coral); color: var(--coral); }
+
   body { background: var(--bg); color: var(--text); font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; height: 100dvh; display: flex; flex-direction: column; overflow: hidden; }
 
   /* Header */
@@ -141,8 +157,20 @@
   .send-btn:disabled { opacity: 0.3; cursor: not-allowed; }
   #file-input { display: none; }
 </style>
+<!-- Google Identity Services -->
+<script src="https://accounts.google.com/gsi/client" async defer></script>
 </head>
 <body>
+
+<!-- Login Screen -->
+<div class="login-screen" id="loginScreen">
+  <div class="login-card">
+    <div class="login-logo">L-<span>A</span>-I</div>
+    <div class="login-tagline">Instagram分析×AIアドバイザー<br>Googleアカウントでログインしてください</div>
+    <div id="googleSignInBtn"></div>
+    <div class="login-note">ログインすることでチャット履歴が<br>どのデバイスからでも引き継がれます</div>
+  </div>
+</div>
 
 <!-- Header -->
 <div class="header">
@@ -151,6 +179,11 @@
     <div class="acc-tab acc-tab-all active" data-account="all" onclick="switchAccount('all', this)">全アカウント</div>
   </div>
   <div class="header-actions">
+    <div class="user-info" id="userInfo" style="display:none;">
+      <img class="user-avatar" id="userAvatar" src="" alt="">
+      <span class="user-name" id="userName"></span>
+      <button class="logout-btn" onclick="logout()">ログアウト</button>
+    </div>
     <button class="icon-btn" onclick="openProfile()" title="目標・方針を設定">🎯</button>
     <button class="icon-btn" onclick="clearChatLog(currentAccount)" title="チャット履歴を削除">🗑️</button>
   </div>
@@ -268,8 +301,10 @@
 </div>
 
 <script>
-let GEMINI_API_KEY = '';
-const CLIENT_ID   = 'C001';
+let GEMINI_API_KEY  = '';
+let GOOGLE_CLIENT_ID = '';
+const CLIENT_ID      = 'C001';
+let currentUser      = null; // { userId, email, name, picture }
 
 // Per-account state
 const accountState = {
@@ -299,13 +334,14 @@ window.addEventListener('load', async () => {
   try {
     const r = await fetch('/api/get-config');
     const j = await r.json();
-    GEMINI_API_KEY = j.geminiApiKey || '';
+    GEMINI_API_KEY  = j.geminiApiKey  || '';
+    GOOGLE_CLIENT_ID = j.googleClientId || '';
   } catch(e) {}
 
-  await loadAccountData();
-  // チャットログ復元
-  await restoreAllLogs();
-  renderQuickReplies();
+  // Google認証初期化
+  initGoogleAuth();
+
+  // 認証後に初期化（initGoogleAuth→onLoginSuccessから呼ばれる）
   addMsg('ai', 'all', 'こんにちは！L-A-Iアドバイザーです。\n\n上のタブでアカウントを切り替えられます。\n**🎯ボタン**でアカウントごとの目標・方針を設定すると、より精度の高いアドバイスが届きます。\n\n画像・動画を添付してコンテンツ評価・キャプション・ハッシュタグも生成できます。');
 });
 
@@ -722,8 +758,70 @@ function runContent(type) {
 }
 
 function sendQuick(t) { inputEl.value = t; sendMessage(); }
-function handleKey(e) { if (e.key === 'Enter' && e.ctrlKey) { e.preventDefault(); sendMessage(); } }
+function handleKey(e) { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); } }
 function autoResize(el) { el.style.height = 'auto'; el.style.height = Math.min(el.scrollHeight, 100) + 'px'; }
+
+// ── Google Auth ──
+function initGoogleAuth() {
+  if (!GOOGLE_CLIENT_ID) { onLoginSuccess(null); return; } // 開発時はスキップ
+  google.accounts.id.initialize({
+    client_id: GOOGLE_CLIENT_ID,
+    callback:  handleCredentialResponse,
+    auto_select: true, // 前回ログイン済みなら自動ログイン
+  });
+  google.accounts.id.renderButton(
+    document.getElementById('googleSignInBtn'),
+    { theme: 'filled_black', size: 'large', text: 'signin_with', shape: 'pill', width: 280 }
+  );
+  // 自動ログイン試行（前回セッション）
+  const savedUser = sessionStorage.getItem('lai_user');
+  if (savedUser) {
+    try { onLoginSuccess(JSON.parse(savedUser)); return; } catch(e) {}
+  }
+  google.accounts.id.prompt(); // One Tap
+}
+
+async function handleCredentialResponse(response) {
+  try {
+    const res  = await fetch('/api/auth', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ idToken: response.credential }),
+    });
+    const user = await res.json();
+    if (user.error) { alert('ログイン失敗: ' + user.error); return; }
+    sessionStorage.setItem('lai_user', JSON.stringify(user));
+    onLoginSuccess(user);
+  } catch(e) { alert('ログインエラー: ' + e.message); }
+}
+
+async function onLoginSuccess(user) {
+  currentUser = user;
+
+  // ログイン画面を非表示
+  document.getElementById('loginScreen').style.display = 'none';
+
+  // ユーザー情報を表示
+  if (user) {
+    const userInfo = document.getElementById('userInfo');
+    userInfo.style.display = 'flex';
+    document.getElementById('userAvatar').src  = user.picture || '';
+    document.getElementById('userName').textContent = user.name || user.email;
+  }
+
+  // アプリ初期化
+  await loadAccountData();
+  await restoreAllLogs();
+  renderQuickReplies();
+}
+
+function logout() {
+  if (!confirm('ログアウトしますか？')) return;
+  sessionStorage.removeItem('lai_user');
+  currentUser = null;
+  google.accounts.id.disableAutoSelect();
+  // ページリロード
+  location.reload();
+}
 
 // ── Chat log (Vercel KV) ──
 async function saveChatLog(accountId) {
@@ -735,14 +833,15 @@ async function saveChatLog(accountId) {
     await fetch('/api/chat-log', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ clientId: CLIENT_ID, accountId, messages: msgs }),
+      body: JSON.stringify({ clientId: currentUser?.userId || CLIENT_ID, accountId, messages: msgs }),
     });
   } catch(e) { console.warn('ログ保存失敗:', e); }
 }
 
 async function restoreLog(accountId) {
   try {
-    const res  = await fetch(`/api/chat-log?clientId=${CLIENT_ID}&accountId=${accountId}`);
+    const userId = currentUser?.userId || CLIENT_ID;
+    const res  = await fetch(`/api/chat-log?clientId=${userId}&accountId=${accountId}`);
     const data = await res.json();
     if (!data.messages?.length) return;
 
@@ -771,7 +870,7 @@ async function clearChatLog(accountId) {
     await fetch('/api/chat-log', {
       method: 'DELETE',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ clientId: CLIENT_ID, accountId }),
+      body: JSON.stringify({ clientId: currentUser?.userId || CLIENT_ID, accountId }),
     });
     if (accountState[accountId]) accountState[accountId].messages = [];
     chatEl.innerHTML = '';
