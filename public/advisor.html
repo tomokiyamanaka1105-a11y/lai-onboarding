@@ -17,33 +17,55 @@
   body { background: var(--bg); color: var(--text); font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; height: 100dvh; display: flex; flex-direction: column; overflow: hidden; }
 
   /* Header */
-  .header { padding: 12px 20px; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
+  .header { padding: 12px 20px; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 10px; flex-shrink: 0; min-height: 52px; }
   .logo { font-size: 17px; font-weight: 700; letter-spacing: -0.02em; flex-shrink: 0; }
   .logo span { color: var(--accent); }
-
-  /* Account tabs */
   .account-tabs { display: flex; gap: 6px; overflow-x: auto; flex: 1; scrollbar-width: none; }
   .account-tabs::-webkit-scrollbar { display: none; }
   .acc-tab { padding: 5px 12px; border-radius: 100px; border: 1px solid var(--border); background: var(--bg2); color: var(--text2); font-size: 11px; cursor: pointer; transition: all 0.2s; white-space: nowrap; flex-shrink: 0; display: flex; align-items: center; gap: 5px; }
   .acc-tab.active { border-color: var(--accent); color: var(--accent); background: var(--accent2); }
-  .acc-tab .acc-dot { width: 5px; height: 5px; border-radius: 50%; background: currentColor; }
-  .acc-tab .acc-followers { font-size: 10px; opacity: 0.7; }
-  .acc-tab-all { border-color: rgba(167,139,250,0.3); }
   .acc-tab-all.active { border-color: var(--purple); color: var(--purple); background: var(--purple2); }
+  .acc-followers { font-size: 10px; opacity: 0.7; }
+  .header-actions { display: flex; gap: 6px; flex-shrink: 0; }
+  .icon-btn { width: 30px; height: 30px; border-radius: 8px; border: 1px solid var(--border); background: none; color: var(--text2); cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 14px; transition: all 0.2s; }
+  .icon-btn:hover { border-color: var(--accent); color: var(--accent); }
 
-  .status { font-size: 11px; color: var(--text2); display: flex; align-items: center; gap: 5px; flex-shrink: 0; }
-  .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--accent); animation: pulse 2s infinite; }
-  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
-
-  /* Account stats bar */
+  /* Stats */
   .stats-bar { padding: 8px 20px; border-bottom: 1px solid var(--border); display: flex; gap: 16px; overflow-x: auto; flex-shrink: 0; scrollbar-width: none; background: var(--bg2); }
   .stats-bar::-webkit-scrollbar { display: none; }
   .stat { flex-shrink: 0; }
-  .stat-label { font-size: 9px; color: var(--text2); letter-spacing: 0.05em; text-transform: uppercase; }
-  .stat-value { font-size: 15px; font-weight: 700; letter-spacing: -0.02em; margin-top: 1px; }
+  .stat-label { font-size: 9px; color: var(--text2); letter-spacing: 0.05em; }
+  .stat-value { font-size: 15px; font-weight: 700; margin-top: 1px; }
   .stat-value.up { color: var(--accent); }
   .stat-value.down { color: var(--coral); }
-  .stat-divider { width: 1px; background: var(--border); flex-shrink: 0; }
+  .stat-divider { width: 1px; background: var(--border); flex-shrink: 0; align-self: stretch; }
+
+  /* Profile badge */
+  .profile-badge { padding: 6px 20px; border-bottom: 1px solid var(--border); display: none; align-items: center; gap: 8px; background: rgba(200,245,100,0.05); flex-shrink: 0; }
+  .profile-badge.show { display: flex; }
+  .profile-badge-text { font-size: 11px; color: var(--text2); flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .profile-badge-text strong { color: var(--accent); }
+  .edit-profile-btn { font-size: 10px; padding: 3px 10px; border-radius: 100px; border: 1px solid rgba(200,245,100,0.3); background: none; color: var(--accent); cursor: pointer; flex-shrink: 0; }
+
+  /* Profile modal */
+  .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.7); z-index: 100; align-items: flex-end; justify-content: center; }
+  .modal-overlay.show { display: flex; }
+  .modal { background: var(--bg2); border: 1px solid var(--border); border-radius: 20px 20px 0 0; padding: 24px 20px 40px; width: 100%; max-width: 600px; max-height: 85vh; overflow-y: auto; }
+  .modal-title { font-size: 16px; font-weight: 700; margin-bottom: 6px; }
+  .modal-desc { font-size: 12px; color: var(--text2); margin-bottom: 20px; line-height: 1.5; }
+  .modal-close { float: right; background: none; border: none; color: var(--text2); font-size: 18px; cursor: pointer; margin-top: -4px; }
+  .form-field { margin-bottom: 16px; }
+  .form-label { font-size: 11px; font-weight: 600; color: var(--text2); letter-spacing: 0.05em; margin-bottom: 6px; display: block; }
+  .form-input { width: 100%; background: var(--bg3); border: 1px solid var(--border); border-radius: 10px; padding: 10px 12px; color: var(--text); font-size: 14px; outline: none; font-family: inherit; transition: border-color 0.2s; }
+  .form-input:focus { border-color: rgba(200,245,100,0.4); }
+  .form-select { width: 100%; background: var(--bg3); border: 1px solid var(--border); border-radius: 10px; padding: 10px 12px; color: var(--text); font-size: 14px; outline: none; font-family: inherit; appearance: none; }
+  .form-textarea { resize: vertical; min-height: 70px; }
+  .chip-group { display: flex; flex-wrap: wrap; gap: 6px; }
+  .chip { padding: 5px 12px; border-radius: 100px; border: 1px solid var(--border); background: var(--bg3); color: var(--text2); font-size: 12px; cursor: pointer; transition: all 0.2s; }
+  .chip.selected { border-color: var(--accent); color: var(--accent); background: var(--accent2); }
+  .save-btn { width: 100%; padding: 14px; background: var(--accent); color: var(--bg); border: none; border-radius: 12px; font-size: 15px; font-weight: 700; cursor: pointer; margin-top: 8px; }
+  .save-btn:hover { opacity: 0.9; }
+  .reset-btn { width: 100%; padding: 10px; background: none; color: var(--coral); border: 1px solid rgba(255,107,107,0.3); border-radius: 12px; font-size: 13px; cursor: pointer; margin-top: 8px; }
 
   /* Chat */
   .chat { flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 14px; }
@@ -63,7 +85,6 @@
   .bubble ul, .bubble ol { padding-left: 18px; margin: 6px 0; }
   .bubble li { margin: 3px 0; }
   .model-badge { display: inline-flex; align-items: center; gap: 4px; font-size: 10px; font-weight: 600; padding: 2px 7px; border-radius: 100px; margin-bottom: 6px; background: var(--blue2); color: var(--blue); border: 1px solid rgba(56,189,248,0.2); }
-  .account-tag { display: inline-block; font-size: 10px; font-weight: 600; padding: 1px 6px; border-radius: 100px; margin-bottom: 6px; background: var(--accent2); color: var(--accent); border: 1px solid rgba(200,245,100,0.2); margin-right: 4px; }
 
   /* Typing */
   .typing { display: flex; gap: 4px; padding: 4px 0; }
@@ -72,7 +93,7 @@
   .typing span:nth-child(3) { animation-delay: 0.4s; }
   @keyframes bounce { 0%,60%,100%{transform:translateY(0)} 30%{transform:translateY(-6px)} }
   .loading-steps { padding: 4px 0; }
-  .loading-step { font-size: 12px; color: var(--text2); display: flex; align-items: center; gap: 8px; padding: 4px 0; transition: color 0.3s; }
+  .loading-step { font-size: 12px; color: var(--text2); display: flex; align-items: center; gap: 8px; padding: 4px 0; }
   .loading-step.done { color: var(--accent); }
   .loading-step.active { color: var(--text); }
   .step-icon { width: 16px; text-align: center; font-size: 13px; }
@@ -123,22 +144,33 @@
 </head>
 <body>
 
+<!-- Header -->
 <div class="header">
   <div class="logo">L-<span>A</span>-I</div>
   <div class="account-tabs" id="accountTabs">
-    <div class="acc-tab acc-tab-all active" data-account="all" onclick="switchAccount('all', this)">
-      <div class="acc-dot"></div>全アカウント
-    </div>
+    <div class="acc-tab acc-tab-all active" data-account="all" onclick="switchAccount('all', this)">全アカウント</div>
   </div>
-  <div class="status"><div class="dot"></div></div>
+  <div class="header-actions">
+    <button class="icon-btn" onclick="openProfile()" title="目標・方針を設定">🎯</button>
+  </div>
 </div>
 
+<!-- Stats bar -->
 <div class="stats-bar" id="statsBar">
   <div class="stat"><div class="stat-label">読込中</div><div class="stat-value">—</div></div>
 </div>
 
+<!-- Profile badge -->
+<div class="profile-badge" id="profileBadge">
+  <span style="font-size:12px;">🎯</span>
+  <div class="profile-badge-text" id="profileBadgeText"></div>
+  <button class="edit-profile-btn" onclick="openProfile()">編集</button>
+</div>
+
+<!-- Chat -->
 <div class="chat" id="chat"></div>
 
+<!-- Bottom -->
 <div class="bottom">
   <div class="attachment-area" id="attachArea">
     <div class="attach-thumb">
@@ -155,21 +187,17 @@
       </div>
     </div>
   </div>
-
   <div class="video-note" id="videoNote">🎬 動画はGemini AIが全フレームを分析 → Claudeが日本語アドバイスを生成します</div>
-
   <div class="content-actions" id="contentActions">
     <button class="ca-btn green"  id="btnEval"    onclick="runContent('evaluate')">📊 投稿評価</button>
     <button class="ca-btn purple" id="btnCaption" onclick="runContent('caption')">✏️ キャプション</button>
     <button class="ca-btn blue"   id="btnHash"    onclick="runContent('hashtag')"># ハッシュタグ</button>
     <button class="ca-btn coral"  id="btnAll"     onclick="runContent('all')">✨ 全部まとめて</button>
   </div>
-
   <div class="quick-replies" id="quickReplies"></div>
-
   <div class="input-area">
     <div class="input-box">
-      <textarea id="input" placeholder="何でも聞いてください、または画像・動画を添付してください..." rows="1"
+      <textarea id="input" placeholder="何でも聞いてください..." rows="1"
         onkeydown="handleKey(event)" oninput="autoResize(this)"></textarea>
       <button class="img-btn" id="imgBtn" onclick="document.getElementById('file-input').click()">📎</button>
       <button class="send-btn" id="sendBtn" onclick="sendMessage()">↑</button>
@@ -178,21 +206,80 @@
   </div>
 </div>
 
+<!-- Profile Modal -->
+<div class="modal-overlay" id="modalOverlay" onclick="closeProfileIfOutside(event)">
+  <div class="modal">
+    <button class="modal-close" onclick="closeProfile()">×</button>
+    <div class="modal-title">🎯 目標・方針の設定</div>
+    <div class="modal-desc" id="modalDesc">このアカウントの目標と投稿方針を設定してください。設定した内容はAIアドバイスに反映されます。</div>
+
+    <div class="form-field">
+      <label class="form-label">フォロワー目標</label>
+      <input type="text" class="form-input" id="pfFollowerGoal" placeholder="例: 3ヶ月で500人、1年で1万人">
+    </div>
+    <div class="form-field">
+      <label class="form-label">重視する指標</label>
+      <div class="chip-group" id="pfKpiChips">
+        <div class="chip" onclick="toggleChip(this)">フォロワー増加</div>
+        <div class="chip" onclick="toggleChip(this)">リーチ拡大</div>
+        <div class="chip" onclick="toggleChip(this)">エンゲージメント</div>
+        <div class="chip" onclick="toggleChip(this)">保存数</div>
+        <div class="chip" onclick="toggleChip(this)">プロフィール訪問</div>
+        <div class="chip" onclick="toggleChip(this)">予約・問い合わせ</div>
+      </div>
+    </div>
+    <div class="form-field">
+      <label class="form-label">メインターゲット</label>
+      <input type="text" class="form-input" id="pfTarget" placeholder="例: 20〜30代の車好き男性、インバウンド観光客">
+    </div>
+    <div class="form-field">
+      <label class="form-label">投稿頻度目標</label>
+      <select class="form-select" id="pfPostFrequency">
+        <option value="">選択してください</option>
+        <option value="毎日">毎日</option>
+        <option value="週5〜6回">週5〜6回</option>
+        <option value="週3〜4回">週3〜4回</option>
+        <option value="週2回">週2回</option>
+        <option value="週1回">週1回</option>
+      </select>
+    </div>
+    <div class="form-field">
+      <label class="form-label">コンテンツの方向性</label>
+      <div class="chip-group" id="pfContentChips">
+        <div class="chip" onclick="toggleChip(this)">体験・臨場感重視</div>
+        <div class="chip" onclick="toggleChip(this)">教育・ノウハウ</div>
+        <div class="chip" onclick="toggleChip(this)">エンタメ・面白さ</div>
+        <div class="chip" onclick="toggleChip(this)">インバウンド向け</div>
+        <div class="chip" onclick="toggleChip(this)">日本語メイン</div>
+        <div class="chip" onclick="toggleChip(this)">日英バイリンガル</div>
+        <div class="chip" onclick="toggleChip(this)">ストーリー性</div>
+        <div class="chip" onclick="toggleChip(this)">リール強化</div>
+      </div>
+    </div>
+    <div class="form-field">
+      <label class="form-label">その他メモ・特記事項</label>
+      <textarea class="form-input form-textarea" id="pfMemo" placeholder="例: 競合アカウントはXXX。避けたいコンテンツはYYY。季節イベントを活用したい。"></textarea>
+    </div>
+
+    <button class="save-btn" onclick="saveProfile()">✓ 保存してAIに反映</button>
+    <button class="reset-btn" onclick="resetProfile()">リセット（設定を削除）</button>
+  </div>
+</div>
+
 <script>
 let GEMINI_API_KEY = '';
-const GAS_API_URL = 'https://script.google.com/macros/s/AKfycbwb8m0VOEHqBnEmWlA0X50zZruqF4CfpgUynLlfIj3EV8zNd5zQ3q2j1BnR0EFh96ks2g/exec';
 const CLIENT_ID   = 'C001';
 
-// State per account
-const state = {
-  all: { messages: [], label: '全アカウント' },
+// Per-account state
+const accountState = {
+  all: { messages: [], label: '全アカウント', igUserId: null },
 };
 let currentAccount = 'all';
 let accountsData   = [];
 let isLoading      = false;
 let attached       = null;
 
-// DOM refs
+// DOM
 const chatEl         = document.getElementById('chat');
 const inputEl        = document.getElementById('input');
 const sendBtn        = document.getElementById('sendBtn');
@@ -203,43 +290,40 @@ const videoNote      = document.getElementById('videoNote');
 const imgBtn         = document.getElementById('imgBtn');
 const statsBar       = document.getElementById('statsBar');
 const accountTabs    = document.getElementById('accountTabs');
+const profileBadge   = document.getElementById('profileBadge');
+const profileBadgeText = document.getElementById('profileBadgeText');
 
 // ── Init ──
 window.addEventListener('load', async () => {
-  // APIキー取得
   try {
     const r = await fetch('/api/get-config');
     const j = await r.json();
     GEMINI_API_KEY = j.geminiApiKey || '';
   } catch(e) {}
 
-  // GASからアカウントデータ取得
   await loadAccountData();
   renderQuickReplies();
-  addMsg('ai', 'all', `こんにちは！L-A-Iアドバイザーです。\n\n上のタブでアカウントを切り替えられます。\n**全アカウント**では横断分析、個別タブでは集中アドバイスができます。\n\n画像・動画を添付してコンテンツ評価・キャプション・ハッシュタグも生成できます。`);
+  addMsg('ai', 'all', 'こんにちは！L-A-Iアドバイザーです。\n\n上のタブでアカウントを切り替えられます。\n**🎯ボタン**でアカウントごとの目標・方針を設定すると、より精度の高いアドバイスが届きます。\n\n画像・動画を添付してコンテンツ評価・キャプション・ハッシュタグも生成できます。');
 });
 
+// ── Account data ──
 async function loadAccountData() {
   try {
-    const res  = await fetch(`${GAS_API_URL}?clientId=${CLIENT_ID}&type=all`);
+    const res  = await fetch(`https://script.google.com/macros/s/AKfycbwb8m0VOEHqBnEmWlA0X50zZruqF4CfpgUynLlfIj3EV8zNd5zQ3q2j1BnR0EFh96ks2g/exec?clientId=${CLIENT_ID}&type=all`);
     const json = await res.json();
     if (!json.success) return;
-
     accountsData = json.data.accounts;
 
-    // タブを生成
     accountsData.forEach(acc => {
-      const latest     = acc.dailyHistory?.[acc.dailyHistory.length - 1];
-      const followers  = latest?.followerCount || 0;
+      const latest    = acc.dailyHistory?.[acc.dailyHistory.length - 1];
+      const followers = latest?.followerCount || 0;
       const tab = document.createElement('div');
       tab.className = 'acc-tab';
       tab.dataset.account = acc.igUserId;
-      tab.innerHTML = `<div class="acc-dot"></div>${acc.accountName} <span class="acc-followers">${followers}人</span>`;
+      tab.innerHTML = `${acc.accountName} <span class="acc-followers">${followers}人</span>`;
       tab.onclick = () => switchAccount(acc.igUserId, tab);
       accountTabs.appendChild(tab);
-
-      // stateを初期化
-      state[acc.igUserId] = { messages: [], label: acc.accountName };
+      accountState[acc.igUserId] = { messages: [], label: acc.accountName, igUserId: acc.igUserId };
     });
 
     renderStats('all');
@@ -250,7 +334,6 @@ async function loadAccountData() {
 
 function renderStats(accountId) {
   if (accountId === 'all') {
-    // 全アカウント合計
     let totalReach = 0, totalFollowers = 0;
     accountsData.forEach(acc => {
       const latest = acc.dailyHistory?.[acc.dailyHistory.length - 1];
@@ -278,53 +361,134 @@ function renderStats(accountId) {
       <div class="stat-divider"></div>
       <div class="stat"><div class="stat-label">累計リーチ</div><div class="stat-value">${totalReach.toLocaleString()}</div></div>
       <div class="stat-divider"></div>
-      <div class="stat"><div class="stat-label">直近投稿リーチ</div><div class="stat-value">${latest?.reach || 0}</div></div>
+      <div class="stat"><div class="stat-label">本日リーチ</div><div class="stat-value">${latest?.reach || 0}</div></div>
     `;
   }
 }
 
-function renderQuickReplies() {
-  const btns = currentAccount === 'all'
-    ? ['先週の全体パフォーマンスを分析して', 'JKTとWKSを比較して', '両アカウントの投稿戦略を提案して', '来週の投稿プランを両方作って']
-    : ['このアカウントの先週の分析をして', '最適な投稿時間を教えて', 'フォロワーを増やすには？', '来週の投稿プランを作って', 'キャプションの改善点は？'];
-  quickReplies.innerHTML = btns.map(b =>
-    `<button class="quick-btn" onclick="sendQuick('${b}')">${b}</button>`
-  ).join('');
+// ── Profile (localStorage) ──
+function getProfileKey(accountId) { return `lai_profile_${CLIENT_ID}_${accountId}`; }
+
+function loadProfile(accountId) {
+  try { return JSON.parse(localStorage.getItem(getProfileKey(accountId))) || null; }
+  catch(e) { return null; }
 }
 
+function saveProfileData(accountId, data) {
+  data.updatedAt = new Date().toLocaleString('ja-JP');
+  localStorage.setItem(getProfileKey(accountId), JSON.stringify(data));
+}
+
+function renderProfileBadge(accountId) {
+  if (accountId === 'all') { profileBadge.classList.remove('show'); return; }
+  const profile = loadProfile(accountId);
+  if (!profile) { profileBadge.classList.remove('show'); return; }
+  profileBadge.classList.add('show');
+  const parts = [];
+  if (profile.followerGoal) parts.push(`目標: ${profile.followerGoal}`);
+  if (profile.kpi)          parts.push(profile.kpi);
+  if (profile.postFrequency) parts.push(profile.postFrequency);
+  profileBadgeText.innerHTML = parts.map(p => `<strong>${p}</strong>`).join(' · ');
+}
+
+function openProfile() {
+  const accountId = currentAccount;
+  if (accountId === 'all') { alert('個別アカウントのタブで設定してください'); return; }
+  const profile = loadProfile(accountId) || {};
+  const label   = accountState[accountId]?.label || accountId;
+  document.getElementById('modalDesc').textContent = `「${label}」の目標と投稿方針を設定してください。設定した内容はAIアドバイスに反映されます。`;
+
+  document.getElementById('pfFollowerGoal').value    = profile.followerGoal || '';
+  document.getElementById('pfTarget').value          = profile.target || '';
+  document.getElementById('pfPostFrequency').value   = profile.postFrequency || '';
+  document.getElementById('pfMemo').value            = profile.memo || '';
+
+  // chips
+  const kpiSelected     = (profile.kpi || '').split('・');
+  const contentSelected = (profile.contentPolicy || '').split('・');
+  document.querySelectorAll('#pfKpiChips .chip').forEach(c => {
+    c.classList.toggle('selected', kpiSelected.includes(c.textContent));
+  });
+  document.querySelectorAll('#pfContentChips .chip').forEach(c => {
+    c.classList.toggle('selected', contentSelected.includes(c.textContent));
+  });
+
+  document.getElementById('modalOverlay').classList.add('show');
+}
+
+function closeProfile() { document.getElementById('modalOverlay').classList.remove('show'); }
+function closeProfileIfOutside(e) { if (e.target === document.getElementById('modalOverlay')) closeProfile(); }
+
+function toggleChip(el) { el.classList.toggle('selected'); }
+
+function saveProfile() {
+  const accountId = currentAccount;
+  const kpi     = Array.from(document.querySelectorAll('#pfKpiChips .chip.selected')).map(c => c.textContent).join('・');
+  const content = Array.from(document.querySelectorAll('#pfContentChips .chip.selected')).map(c => c.textContent).join('・');
+  const profile = {
+    followerGoal:  document.getElementById('pfFollowerGoal').value.trim(),
+    kpi,
+    target:        document.getElementById('pfTarget').value.trim(),
+    postFrequency: document.getElementById('pfPostFrequency').value,
+    contentPolicy: content,
+    memo:          document.getElementById('pfMemo').value.trim(),
+  };
+  saveProfileData(accountId, profile);
+  renderProfileBadge(accountId);
+  closeProfile();
+
+  // AIに通知
+  const label = accountState[accountId]?.label || accountId;
+  addMsg('ai', accountId, `✅ **${label}**の目標・方針を更新しました。\n\n${profile.followerGoal ? `📌 目標: ${profile.followerGoal}\n` : ''}${profile.kpi ? `📊 重視: ${profile.kpi}\n` : ''}${profile.postFrequency ? `📅 頻度: ${profile.postFrequency}\n` : ''}${profile.contentPolicy ? `🎨 方針: ${profile.contentPolicy}` : ''}\n\nこの内容を踏まえてアドバイスします。何でも聞いてください！`);
+}
+
+function resetProfile() {
+  if (!confirm('このアカウントの目標・方針をリセットしますか？')) return;
+  localStorage.removeItem(getProfileKey(currentAccount));
+  renderProfileBadge(currentAccount);
+  closeProfile();
+  addMsg('ai', currentAccount, '目標・方針をリセットしました。新しい目標を設定するには🎯ボタンを押してください。');
+}
+
+// ── Account switching ──
 function switchAccount(accountId, tabEl) {
   currentAccount = accountId;
   document.querySelectorAll('.acc-tab').forEach(t => t.classList.remove('active'));
   tabEl.classList.add('active');
   renderStats(accountId);
   renderQuickReplies();
+  renderProfileBadge(accountId);
   renderChat();
 
-  // そのアカウントの初回メッセージ
-  if (state[accountId]?.messages.length === 0) {
-    const label = state[accountId]?.label || accountId;
+  if ((accountState[accountId]?.messages || []).length === 0) {
+    const profile = accountId !== 'all' ? loadProfile(accountId) : null;
     if (accountId === 'all') {
-      addMsg('ai', accountId, 'すべてのアカウントを横断して分析します。JKTとWKSの比較や全体戦略を聞いてください。');
+      addMsg('ai', 'all', 'すべてのアカウントを横断して分析します。JKTとWKSの比較や全体戦略を聞いてください。');
     } else {
-      const acc = accountsData.find(a => a.igUserId === accountId);
+      const acc    = accountsData.find(a => a.igUserId === accountId);
       const latest = acc?.dailyHistory?.[acc.dailyHistory.length - 1];
-      addMsg('ai', accountId, `**${label}** に切り替えました。\nフォロワー ${latest?.followerCount || 0}人 のデータを参照して回答します。`);
+      const label  = accountState[accountId]?.label || accountId;
+      let msg = `**${label}**に切り替えました。フォロワー ${latest?.followerCount || 0}人 のデータを参照します。`;
+      if (!profile) {
+        msg += `\n\n🎯 **目標・方針が未設定です。**\n右上の🎯ボタンから設定すると、より精度の高いアドバイスができます。`;
+      } else {
+        msg += `\n\n✅ 目標「${profile.followerGoal || '設定済み'}」に向けてアドバイスします。`;
+      }
+      addMsg('ai', accountId, msg);
     }
   }
 }
 
-function renderChat() {
-  chatEl.innerHTML = '';
-  const msgs = state[currentAccount]?.messages || [];
-  msgs.forEach(m => {
-    if (m._rendered) {
-      chatEl.appendChild(m._rendered.cloneNode(true));
-    }
-  });
-  chatEl.scrollTop = chatEl.scrollHeight;
+function renderQuickReplies() {
+  const btns = currentAccount === 'all'
+    ? ['先週の全体パフォーマンスを分析して', 'JKTとWKSどちらを優先すべき？', '両アカウントの投稿戦略を提案して', '来週の投稿プランを両方作って']
+    : ['先週の分析をして', '最適な投稿時間を教えて', '目標達成までの投稿プランを作って', 'フォロワーを増やすには？', '競合との差別化ポイントは？'];
+  quickReplies.innerHTML = btns.map(b =>
+    `<button class="quick-btn" onclick="sendQuick('${b}')">${b}</button>`
+  ).join('');
 }
 
-// ── Message rendering ──
+// ── Chat rendering ──
 function fmt(t) {
   return t.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
           .replace(/`(.*?)`/g, '<code>$1</code>')
@@ -336,34 +500,28 @@ function addMsg(role, accountId, content, mediaUrl = null, isVideo = false, isGe
   const av = document.createElement('div'); av.className = `avatar ${role === 'ai' ? 'ai' : 'me'}`; av.textContent = role === 'ai' ? 'AI' : '私';
   const b  = document.createElement('div'); b.className = 'bubble';
 
-  if (role === 'ai' && accountId !== 'all' && currentAccount === 'all') {
-    const tag = document.createElement('span');
-    tag.className = 'account-tag';
-    tag.textContent = state[accountId]?.label || accountId;
-    b.appendChild(tag);
-  }
   if (isGemini) {
     const badge = document.createElement('div'); badge.className = 'model-badge'; badge.textContent = '🎬 Gemini + Claude'; b.appendChild(badge);
   }
-
   const txt = document.createElement('div'); txt.innerHTML = fmt(content); b.appendChild(txt);
-
   if (mediaUrl) {
     if (isVideo) { const v = document.createElement('video'); v.src = mediaUrl; v.controls = true; v.muted = true; b.appendChild(v); }
     else { const i = document.createElement('img'); i.src = mediaUrl; b.appendChild(i); }
   }
-
   d.appendChild(av); d.appendChild(b);
 
-  // stateに保存
-  if (!state[accountId]) state[accountId] = { messages: [], label: accountId };
-  state[accountId].messages.push({ role, content, _rendered: d });
+  if (!accountState[accountId]) accountState[accountId] = { messages: [], label: accountId, igUserId: accountId };
+  accountState[accountId].messages.push({ role, content, _el: d });
 
-  // 現在のアカウントなら表示
-  if (accountId === currentAccount) {
-    chatEl.appendChild(d);
-    chatEl.scrollTop = chatEl.scrollHeight;
-  }
+  if (accountId === currentAccount) { chatEl.appendChild(d); chatEl.scrollTop = chatEl.scrollHeight; }
+}
+
+function renderChat() {
+  chatEl.innerHTML = '';
+  (accountState[currentAccount]?.messages || []).forEach(m => {
+    if (m._el) chatEl.appendChild(m._el.cloneNode(true));
+  });
+  chatEl.scrollTop = chatEl.scrollHeight;
 }
 
 function showTyping(steps = null) {
@@ -373,8 +531,8 @@ function showTyping(steps = null) {
   if (steps) {
     const sl = document.createElement('div'); sl.className = 'loading-steps';
     steps.forEach((s, i) => {
-      const row = document.createElement('div'); row.className = `loading-step ${i === 0 ? 'active' : ''}`; row.id = `step-${i}`;
-      row.innerHTML = `<span class="step-icon">${i === 0 ? '⟳' : '○'}</span><span>${s}</span>`;
+      const row = document.createElement('div'); row.className = `loading-step ${i===0?'active':''}`; row.id = `step-${i}`;
+      row.innerHTML = `<span class="step-icon">${i===0?'⟳':'○'}</span><span>${s}</span>`;
       sl.appendChild(row);
     });
     b.appendChild(sl);
@@ -388,7 +546,7 @@ function showTyping(steps = null) {
 function updateStep(idx) {
   document.querySelectorAll('.loading-step').forEach((s, i) => {
     const icon = s.querySelector('.step-icon');
-    if (i < idx)       { s.className = 'loading-step done';   icon.textContent = '✓'; }
+    if (i < idx) { s.className = 'loading-step done'; icon.textContent = '✓'; }
     else if (i === idx) { s.className = 'loading-step active'; icon.textContent = '⟳'; }
   });
 }
@@ -409,9 +567,9 @@ function updateAttachUI(hasFile) {
 }
 
 async function uploadToGemini(file) {
-  const progressBar  = document.getElementById('progressBar');
+  const progressBar = document.getElementById('progressBar');
   const progressText = document.getElementById('progressText');
-  const uploadProg   = document.getElementById('uploadProgress');
+  const uploadProg = document.getElementById('uploadProgress');
   uploadProg.style.display = 'block';
 
   const startRes = await fetch(
@@ -420,25 +578,22 @@ async function uploadToGemini(file) {
   );
   const uploadUrl = startRes.headers.get('X-Goog-Upload-URL');
   if (!uploadUrl) throw new Error('Upload URL取得失敗');
-
   progressBar.style.width = '30%'; progressText.textContent = 'Geminiにアップロード中...';
 
   const uploadRes  = await fetch(uploadUrl, { method: 'POST', headers: { 'X-Goog-Upload-Command': 'upload, finalize', 'X-Goog-Upload-Offset': '0', 'Content-Type': file.type }, body: file });
   const uploadJson = await uploadRes.json();
   const fileUri    = uploadJson?.file?.uri;
-  const fileName   = uploadJson?.file?.name;
+  const name       = uploadJson?.file?.name;
   if (!fileUri) throw new Error('fileUri取得失敗');
 
   progressBar.style.width = '80%'; progressText.textContent = '処理中...';
-  let state2 = uploadJson?.file?.state;
-  let attempts = 0;
-  while (state2 === 'PROCESSING' && attempts < 20) {
+  let st = uploadJson?.file?.state; let attempts = 0;
+  while (st === 'PROCESSING' && attempts < 20) {
     await new Promise(r => setTimeout(r, 2000));
-    const s = await fetch(`https://generativelanguage.googleapis.com/v1beta/${fileName}?key=${GEMINI_API_KEY}`);
-    const j = await s.json(); state2 = j?.state; attempts++;
+    const s = await fetch(`https://generativelanguage.googleapis.com/v1beta/${name}?key=${GEMINI_API_KEY}`);
+    const j = await s.json(); st = j?.state; attempts++;
     progressBar.style.width = `${80 + attempts}%`;
   }
-
   progressBar.style.width = '100%'; progressText.textContent = 'アップロード完了！';
   setTimeout(() => { uploadProg.style.display = 'none'; }, 1000);
   return fileUri;
@@ -459,7 +614,6 @@ async function handleFile(e) {
     const iEl = document.getElementById('attachImg'); iEl.src = url; iEl.style.display = 'block';
     document.getElementById('attachTypeLabel').textContent = '画像'; document.getElementById('attachTypeLabel').className = 'attach-type image';
   }
-
   attached = { type: f.type, url, isVideo, fileUri: null, data: null };
   updateAttachUI(true); setContentBtns(true);
 
@@ -468,9 +622,9 @@ async function handleFile(e) {
     try {
       const fileUri = await uploadToGemini(f);
       attached.fileUri = fileUri;
-      document.getElementById('uploadStatus').innerHTML = `<span class="hl blue">🎬 動画 アップロード完了</span><br>下のボタンで分析してください`;
+      document.getElementById('uploadStatus').innerHTML = `<span class="hl blue">🎬 アップロード完了</span><br>下のボタンで分析してください`;
       setContentBtns(false);
-    } catch (err) {
+    } catch(err) {
       document.getElementById('uploadStatus').innerHTML = `<span style="color:#ff6b6b;">⚠️ アップロード失敗: ${err.message}</span>`;
       attached = null; updateAttachUI(false);
     }
@@ -500,43 +654,52 @@ async function sendMessage(overridePrompt = null) {
   isLoading = true; sendBtn.disabled = true;
 
   const accountId  = currentAccount;
+  const igUserId   = accountState[accountId]?.igUserId || null;
+  const profile    = accountId !== 'all' ? loadProfile(accountId) : null;
   const usedAttach = attached ? { ...attached } : null;
-  addMsg('user', accountId, text || (usedAttach?.isVideo ? '（動画を送信）' : '（画像を送信）'), usedAttach?.url, usedAttach?.isVideo || false);
 
+  addMsg('user', accountId, text || (usedAttach?.isVideo ? '（動画を送信）' : '（画像を送信）'), usedAttach?.url, usedAttach?.isVideo || false);
   if (!overridePrompt) { inputEl.value = ''; autoResize(inputEl); }
   attached = null; updateAttachUI(false);
 
-  // メッセージ履歴
-  const msgs = state[accountId]?.messages
+  // 会話履歴（直近10往復）
+  const history = (accountState[accountId]?.messages || [])
     .filter(m => m.role === 'user' || m.role === 'assistant')
-    .map(m => ({ role: m.role === 'assistant' ? 'assistant' : 'user', content: m.content })) || [];
+    .slice(-20)
+    .map(m => ({ role: m.role === 'assistant' ? 'assistant' : 'user', content: typeof m.content === 'string' ? m.content : m.content }));
 
   if (usedAttach?.isVideo && usedAttach?.fileUri) {
     showTyping(['Geminiが動画を全フレーム分析中...', 'Claudeが日本語アドバイスを生成中...']);
     try {
-      const res  = await fetch('/api/advisor-video', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ fileUri: usedAttach.fileUri, videoMimeType: usedAttach.type, clientId: CLIENT_ID, igUserId: accountId === 'all' ? null : accountId, prompt: text || '全部まとめて評価してください。' }) });
+      const res  = await fetch('/api/advisor-video', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ fileUri: usedAttach.fileUri, videoMimeType: usedAttach.type, clientId: CLIENT_ID, igUserId, accountProfile: profile, prompt: text || '全部まとめて評価してください。' }),
+      });
       updateStep(1);
       const data = await res.json();
       hideTyping();
       if (data.content) addMsg('ai', accountId, data.content, null, false, true);
       else addMsg('ai', accountId, `エラー: ${data.geminiAnalysis || '不明'}`);
-    } catch (e) { hideTyping(); addMsg('ai', accountId, `エラー: ${e.message}`); }
+    } catch(e) { hideTyping(); addMsg('ai', accountId, `エラー: ${e.message}`); }
 
   } else {
     const uc = [];
     if (usedAttach?.data) uc.push({ type: 'image', source: { type: 'base64', media_type: usedAttach.type, data: usedAttach.data } });
     if (text) uc.push({ type: 'text', text });
-    const lastContent = uc.length === 1 && uc[0].type === 'text' ? text : uc;
-    const sendMsgs = [...msgs.slice(0, -1), { role: 'user', content: lastContent }];
+    const lastContent = uc.length === 0 ? text : uc.length === 1 && uc[0].type === 'text' ? text : uc;
+    const sendMsgs = [...history.slice(0, -1), { role: 'user', content: lastContent }];
 
     showTyping();
     try {
-      const res  = await fetch('/api/advisor', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ messages: sendMsgs, clientId: CLIENT_ID, igUserId: accountId === 'all' ? null : accountId }) });
+      const res  = await fetch('/api/advisor', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ messages: sendMsgs, clientId: CLIENT_ID, igUserId, accountProfile: profile }),
+      });
       const data = await res.json();
       hideTyping();
       if (data.content) addMsg('ai', accountId, data.content);
       else addMsg('ai', accountId, 'エラーが発生しました。');
-    } catch (e) { hideTyping(); addMsg('ai', accountId, 'エラーが発生しました。'); }
+    } catch(e) { hideTyping(); addMsg('ai', accountId, 'エラーが発生しました。'); }
   }
 
   isLoading = false; sendBtn.disabled = false;
@@ -545,8 +708,8 @@ async function sendMessage(overridePrompt = null) {
 function runContent(type) {
   if (!attached) { alert('先にファイルを添付してください'); return; }
   const prompts = {
-    evaluate: '投稿として詳しく評価してください。スコア・強み・改善点・予想パフォーマンスを過去データと比較して。',
-    caption:  'この投稿に合うInstagramキャプションを3パターン生成してください。過去の成功投稿の傾向を踏まえて。インバウンド向けは日英バイリンガルで。',
+    evaluate: '投稿として詳しく評価してください。スコア・強み・改善点・予想パフォーマンスを過去データと目標と比較して。',
+    caption:  'この投稿に合うInstagramキャプションを3パターン生成してください。設定した目標・ターゲット・方針を踏まえて。',
     hashtag:  'この投稿に最適なハッシュタグを提案してください。必須タグ・ニッチタグ・バイラルタグ・インバウンド英語タグのカテゴリ別に。',
     all:      '以下を全部まとめてください: ①投稿評価（スコア・強み・改善点）②キャプション案3パターン ③ハッシュタグ提案（カテゴリ別）④最適な投稿タイミング',
   };
