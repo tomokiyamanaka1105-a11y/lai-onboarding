@@ -15,13 +15,37 @@
     --coral: #ff6b6b; --coral2: rgba(255,107,107,0.1);
   }
   body { background: var(--bg); color: var(--text); font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; height: 100dvh; display: flex; flex-direction: column; overflow: hidden; }
-  .header { padding: 14px 20px; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 12px; flex-shrink: 0; }
-  .logo { font-size: 18px; font-weight: 700; letter-spacing: -0.02em; }
+
+  /* Header */
+  .header { padding: 12px 20px; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
+  .logo { font-size: 17px; font-weight: 700; letter-spacing: -0.02em; flex-shrink: 0; }
   .logo span { color: var(--accent); }
-  .badge { font-size: 10px; font-weight: 600; color: var(--accent); background: var(--accent2); padding: 3px 8px; border-radius: 100px; }
-  .status { margin-left: auto; font-size: 11px; color: var(--text2); display: flex; align-items: center; gap: 5px; }
+
+  /* Account tabs */
+  .account-tabs { display: flex; gap: 6px; overflow-x: auto; flex: 1; scrollbar-width: none; }
+  .account-tabs::-webkit-scrollbar { display: none; }
+  .acc-tab { padding: 5px 12px; border-radius: 100px; border: 1px solid var(--border); background: var(--bg2); color: var(--text2); font-size: 11px; cursor: pointer; transition: all 0.2s; white-space: nowrap; flex-shrink: 0; display: flex; align-items: center; gap: 5px; }
+  .acc-tab.active { border-color: var(--accent); color: var(--accent); background: var(--accent2); }
+  .acc-tab .acc-dot { width: 5px; height: 5px; border-radius: 50%; background: currentColor; }
+  .acc-tab .acc-followers { font-size: 10px; opacity: 0.7; }
+  .acc-tab-all { border-color: rgba(167,139,250,0.3); }
+  .acc-tab-all.active { border-color: var(--purple); color: var(--purple); background: var(--purple2); }
+
+  .status { font-size: 11px; color: var(--text2); display: flex; align-items: center; gap: 5px; flex-shrink: 0; }
   .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--accent); animation: pulse 2s infinite; }
   @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
+
+  /* Account stats bar */
+  .stats-bar { padding: 8px 20px; border-bottom: 1px solid var(--border); display: flex; gap: 16px; overflow-x: auto; flex-shrink: 0; scrollbar-width: none; background: var(--bg2); }
+  .stats-bar::-webkit-scrollbar { display: none; }
+  .stat { flex-shrink: 0; }
+  .stat-label { font-size: 9px; color: var(--text2); letter-spacing: 0.05em; text-transform: uppercase; }
+  .stat-value { font-size: 15px; font-weight: 700; letter-spacing: -0.02em; margin-top: 1px; }
+  .stat-value.up { color: var(--accent); }
+  .stat-value.down { color: var(--coral); }
+  .stat-divider { width: 1px; background: var(--border); flex-shrink: 0; }
+
+  /* Chat */
   .chat { flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 14px; }
   .message { display: flex; gap: 10px; animation: fadeIn 0.3s ease; }
   @keyframes fadeIn { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:translateY(0)} }
@@ -38,8 +62,10 @@
   .bubble code { background: var(--bg3); padding: 1px 5px; border-radius: 4px; font-family: monospace; font-size: 12px; color: var(--accent); }
   .bubble ul, .bubble ol { padding-left: 18px; margin: 6px 0; }
   .bubble li { margin: 3px 0; }
-  .model-badge { display: inline-flex; align-items: center; gap: 4px; font-size: 10px; font-weight: 600; padding: 2px 7px; border-radius: 100px; margin-bottom: 6px; }
-  .model-badge.gemini { background: var(--blue2); color: var(--blue); border: 1px solid rgba(56,189,248,0.2); }
+  .model-badge { display: inline-flex; align-items: center; gap: 4px; font-size: 10px; font-weight: 600; padding: 2px 7px; border-radius: 100px; margin-bottom: 6px; background: var(--blue2); color: var(--blue); border: 1px solid rgba(56,189,248,0.2); }
+  .account-tag { display: inline-block; font-size: 10px; font-weight: 600; padding: 1px 6px; border-radius: 100px; margin-bottom: 6px; background: var(--accent2); color: var(--accent); border: 1px solid rgba(200,245,100,0.2); margin-right: 4px; }
+
+  /* Typing */
   .typing { display: flex; gap: 4px; padding: 4px 0; }
   .typing span { width: 6px; height: 6px; border-radius: 50%; background: var(--text2); animation: bounce 1.2s infinite; }
   .typing span:nth-child(2) { animation-delay: 0.2s; }
@@ -50,6 +76,8 @@
   .loading-step.done { color: var(--accent); }
   .loading-step.active { color: var(--text); }
   .step-icon { width: 16px; text-align: center; font-size: 13px; }
+
+  /* Bottom */
   .bottom { flex-shrink: 0; border-top: 1px solid var(--border); }
   .attachment-area { display: none; padding: 12px 20px 0; }
   .attachment-area.show { display: flex; gap: 10px; align-items: flex-start; }
@@ -97,8 +125,16 @@
 
 <div class="header">
   <div class="logo">L-<span>A</span>-I</div>
-  <div class="badge">AIアドバイザー</div>
-  <div class="status"><div class="dot"></div>オンライン</div>
+  <div class="account-tabs" id="accountTabs">
+    <div class="acc-tab acc-tab-all active" data-account="all" onclick="switchAccount('all', this)">
+      <div class="acc-dot"></div>全アカウント
+    </div>
+  </div>
+  <div class="status"><div class="dot"></div></div>
+</div>
+
+<div class="stats-bar" id="statsBar">
+  <div class="stat"><div class="stat-label">読込中</div><div class="stat-value">—</div></div>
 </div>
 
 <div class="chat" id="chat"></div>
@@ -120,9 +156,7 @@
     </div>
   </div>
 
-  <div class="video-note" id="videoNote">
-    🎬 動画はGemini AIが全フレームを分析 → Claudeが日本語アドバイスを生成します
-  </div>
+  <div class="video-note" id="videoNote">🎬 動画はGemini AIが全フレームを分析 → Claudeが日本語アドバイスを生成します</div>
 
   <div class="content-actions" id="contentActions">
     <button class="ca-btn green"  id="btnEval"    onclick="runContent('evaluate')">📊 投稿評価</button>
@@ -131,15 +165,7 @@
     <button class="ca-btn coral"  id="btnAll"     onclick="runContent('all')">✨ 全部まとめて</button>
   </div>
 
-  <div class="quick-replies" id="quickReplies">
-    <button class="quick-btn" onclick="sendQuick('先週のパフォーマンスを分析して')">先週の分析</button>
-    <button class="quick-btn" onclick="sendQuick('最適な投稿時間を教えて')">最適投稿時間</button>
-    <button class="quick-btn" onclick="sendQuick('リールとカルーセルどちらを増やすべき？')">形式の比較</button>
-    <button class="quick-btn" onclick="sendQuick('フォロワーを増やすために今すぐできることは？')">フォロワー増加</button>
-    <button class="quick-btn" onclick="sendQuick('JKTとWKSを比較してどちらに注力すべき？')">アカウント比較</button>
-    <button class="quick-btn" onclick="sendQuick('来週の投稿プランを作って')">投稿プラン</button>
-    <button class="quick-btn" onclick="sendQuick('広告に¥5,000使うとしたらどう使う？')">広告戦略</button>
-  </div>
+  <div class="quick-replies" id="quickReplies"></div>
 
   <div class="input-area">
     <div class="input-box">
@@ -153,6 +179,20 @@
 </div>
 
 <script>
+let GEMINI_API_KEY = '';
+const GAS_API_URL = 'https://script.google.com/macros/s/AKfycbwb8m0VOEHqBnEmWlA0X50zZruqF4CfpgUynLlfIj3EV8zNd5zQ3q2j1BnR0EFh96ks2g/exec';
+const CLIENT_ID   = 'C001';
+
+// State per account
+const state = {
+  all: { messages: [], label: '全アカウント' },
+};
+let currentAccount = 'all';
+let accountsData   = [];
+let isLoading      = false;
+let attached       = null;
+
+// DOM refs
 const chatEl         = document.getElementById('chat');
 const inputEl        = document.getElementById('input');
 const sendBtn        = document.getElementById('sendBtn');
@@ -161,64 +201,179 @@ const contentActions = document.getElementById('contentActions');
 const quickReplies   = document.getElementById('quickReplies');
 const videoNote      = document.getElementById('videoNote');
 const imgBtn         = document.getElementById('imgBtn');
+const statsBar       = document.getElementById('statsBar');
+const accountTabs    = document.getElementById('accountTabs');
 
-let GEMINI_API_KEY = '';
-
-let messages  = [];
-let clientId  = 'C001';
-let isLoading = false;
-let attached  = null; // { data, type, url, isVideo, fileUri(動画時) }
-
+// ── Init ──
 window.addEventListener('load', async () => {
+  // APIキー取得
   try {
-    const cfgRes = await fetch('/api/get-config');
-    const cfg = await cfgRes.json();
-    GEMINI_API_KEY = cfg.geminiApiKey || '';
-  } catch(e) { console.error('config取得失敗', e); }
-  addMsg('ai', 'こんにちは！L-A-Iアドバイザーです。\n\nJKTとWKSのデータを参照してリアルタイムでアドバイスします。\n\n**📎 画像・動画を添付**してコンテンツ評価・キャプション・ハッシュタグを生成できます。\n動画は**Gemini AIが全フレームを分析**し、Claudeが日本語アドバイスを生成します。\n\n何でも聞いてください！');
+    const r = await fetch('/api/get-config');
+    const j = await r.json();
+    GEMINI_API_KEY = j.geminiApiKey || '';
+  } catch(e) {}
+
+  // GASからアカウントデータ取得
+  await loadAccountData();
+  renderQuickReplies();
+  addMsg('ai', 'all', `こんにちは！L-A-Iアドバイザーです。\n\n上のタブでアカウントを切り替えられます。\n**全アカウント**では横断分析、個別タブでは集中アドバイスができます。\n\n画像・動画を添付してコンテンツ評価・キャプション・ハッシュタグも生成できます。`);
 });
 
+async function loadAccountData() {
+  try {
+    const res  = await fetch(`${GAS_API_URL}?clientId=${CLIENT_ID}&type=all`);
+    const json = await res.json();
+    if (!json.success) return;
+
+    accountsData = json.data.accounts;
+
+    // タブを生成
+    accountsData.forEach(acc => {
+      const latest     = acc.dailyHistory?.[acc.dailyHistory.length - 1];
+      const followers  = latest?.followerCount || 0;
+      const tab = document.createElement('div');
+      tab.className = 'acc-tab';
+      tab.dataset.account = acc.igUserId;
+      tab.innerHTML = `<div class="acc-dot"></div>${acc.accountName} <span class="acc-followers">${followers}人</span>`;
+      tab.onclick = () => switchAccount(acc.igUserId, tab);
+      accountTabs.appendChild(tab);
+
+      // stateを初期化
+      state[acc.igUserId] = { messages: [], label: acc.accountName };
+    });
+
+    renderStats('all');
+  } catch(e) {
+    statsBar.innerHTML = `<div class="stat"><div class="stat-label">データ取得失敗</div></div>`;
+  }
+}
+
+function renderStats(accountId) {
+  if (accountId === 'all') {
+    // 全アカウント合計
+    let totalReach = 0, totalFollowers = 0;
+    accountsData.forEach(acc => {
+      const latest = acc.dailyHistory?.[acc.dailyHistory.length - 1];
+      totalFollowers += Number(latest?.followerCount) || 0;
+      acc.dailyHistory?.forEach(d => totalReach += Number(d.reach) || 0);
+    });
+    statsBar.innerHTML = `
+      <div class="stat"><div class="stat-label">総フォロワー</div><div class="stat-value">${totalFollowers}</div></div>
+      <div class="stat-divider"></div>
+      <div class="stat"><div class="stat-label">累計リーチ</div><div class="stat-value">${totalReach.toLocaleString()}</div></div>
+      <div class="stat-divider"></div>
+      <div class="stat"><div class="stat-label">アカウント数</div><div class="stat-value">${accountsData.length}</div></div>
+    `;
+  } else {
+    const acc    = accountsData.find(a => a.igUserId === accountId);
+    if (!acc) return;
+    const latest = acc.dailyHistory?.[acc.dailyHistory.length - 1];
+    const oldest = acc.dailyHistory?.[0];
+    const totalReach = acc.dailyHistory?.reduce((s, d) => s + (Number(d.reach) || 0), 0) || 0;
+    const delta  = (Number(latest?.followerCount) || 0) - (Number(oldest?.followerCount) || 0);
+    statsBar.innerHTML = `
+      <div class="stat"><div class="stat-label">フォロワー</div><div class="stat-value">${latest?.followerCount || 0}</div></div>
+      <div class="stat-divider"></div>
+      <div class="stat"><div class="stat-label">増減</div><div class="stat-value ${delta >= 0 ? 'up' : 'down'}">${delta >= 0 ? '+' : ''}${delta}</div></div>
+      <div class="stat-divider"></div>
+      <div class="stat"><div class="stat-label">累計リーチ</div><div class="stat-value">${totalReach.toLocaleString()}</div></div>
+      <div class="stat-divider"></div>
+      <div class="stat"><div class="stat-label">直近投稿リーチ</div><div class="stat-value">${latest?.reach || 0}</div></div>
+    `;
+  }
+}
+
+function renderQuickReplies() {
+  const btns = currentAccount === 'all'
+    ? ['先週の全体パフォーマンスを分析して', 'JKTとWKSを比較して', '両アカウントの投稿戦略を提案して', '来週の投稿プランを両方作って']
+    : ['このアカウントの先週の分析をして', '最適な投稿時間を教えて', 'フォロワーを増やすには？', '来週の投稿プランを作って', 'キャプションの改善点は？'];
+  quickReplies.innerHTML = btns.map(b =>
+    `<button class="quick-btn" onclick="sendQuick('${b}')">${b}</button>`
+  ).join('');
+}
+
+function switchAccount(accountId, tabEl) {
+  currentAccount = accountId;
+  document.querySelectorAll('.acc-tab').forEach(t => t.classList.remove('active'));
+  tabEl.classList.add('active');
+  renderStats(accountId);
+  renderQuickReplies();
+  renderChat();
+
+  // そのアカウントの初回メッセージ
+  if (state[accountId]?.messages.length === 0) {
+    const label = state[accountId]?.label || accountId;
+    if (accountId === 'all') {
+      addMsg('ai', accountId, 'すべてのアカウントを横断して分析します。JKTとWKSの比較や全体戦略を聞いてください。');
+    } else {
+      const acc = accountsData.find(a => a.igUserId === accountId);
+      const latest = acc?.dailyHistory?.[acc.dailyHistory.length - 1];
+      addMsg('ai', accountId, `**${label}** に切り替えました。\nフォロワー ${latest?.followerCount || 0}人 のデータを参照して回答します。`);
+    }
+  }
+}
+
+function renderChat() {
+  chatEl.innerHTML = '';
+  const msgs = state[currentAccount]?.messages || [];
+  msgs.forEach(m => {
+    if (m._rendered) {
+      chatEl.appendChild(m._rendered.cloneNode(true));
+    }
+  });
+  chatEl.scrollTop = chatEl.scrollHeight;
+}
+
+// ── Message rendering ──
 function fmt(t) {
   return t.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
           .replace(/`(.*?)`/g, '<code>$1</code>')
           .replace(/\n/g, '<br>');
 }
 
-function addMsg(role, content, mediaUrl = null, isVideo = false, isGemini = false) {
+function addMsg(role, accountId, content, mediaUrl = null, isVideo = false, isGemini = false) {
   const d  = document.createElement('div'); d.className = `message ${role}`;
   const av = document.createElement('div'); av.className = `avatar ${role === 'ai' ? 'ai' : 'me'}`; av.textContent = role === 'ai' ? 'AI' : '私';
   const b  = document.createElement('div'); b.className = 'bubble';
 
+  if (role === 'ai' && accountId !== 'all' && currentAccount === 'all') {
+    const tag = document.createElement('span');
+    tag.className = 'account-tag';
+    tag.textContent = state[accountId]?.label || accountId;
+    b.appendChild(tag);
+  }
   if (isGemini) {
-    const badge = document.createElement('div'); badge.className = 'model-badge gemini';
-    badge.textContent = '🎬 Gemini + Claude'; b.appendChild(badge);
+    const badge = document.createElement('div'); badge.className = 'model-badge'; badge.textContent = '🎬 Gemini + Claude'; b.appendChild(badge);
   }
 
   const txt = document.createElement('div'); txt.innerHTML = fmt(content); b.appendChild(txt);
 
   if (mediaUrl) {
-    if (isVideo) {
-      const v = document.createElement('video'); v.src = mediaUrl; v.controls = true; v.muted = true; b.appendChild(v);
-    } else {
-      const i = document.createElement('img'); i.src = mediaUrl; b.appendChild(i);
-    }
+    if (isVideo) { const v = document.createElement('video'); v.src = mediaUrl; v.controls = true; v.muted = true; b.appendChild(v); }
+    else { const i = document.createElement('img'); i.src = mediaUrl; b.appendChild(i); }
   }
 
-  d.appendChild(av); d.appendChild(b); chatEl.appendChild(d);
-  chatEl.scrollTop = chatEl.scrollHeight;
+  d.appendChild(av); d.appendChild(b);
+
+  // stateに保存
+  if (!state[accountId]) state[accountId] = { messages: [], label: accountId };
+  state[accountId].messages.push({ role, content, _rendered: d });
+
+  // 現在のアカウントなら表示
+  if (accountId === currentAccount) {
+    chatEl.appendChild(d);
+    chatEl.scrollTop = chatEl.scrollHeight;
+  }
 }
 
 function showTyping(steps = null) {
   const d  = document.createElement('div'); d.className = 'message ai'; d.id = 'typing';
   const av = document.createElement('div'); av.className = 'avatar ai'; av.textContent = 'AI';
   const b  = document.createElement('div'); b.className = 'bubble';
-
   if (steps) {
-    const sl = document.createElement('div'); sl.className = 'loading-steps'; sl.id = 'loadingSteps';
+    const sl = document.createElement('div'); sl.className = 'loading-steps';
     steps.forEach((s, i) => {
-      const row = document.createElement('div');
-      row.className = `loading-step ${i === 0 ? 'active' : ''}`;
-      row.id = `step-${i}`;
+      const row = document.createElement('div'); row.className = `loading-step ${i === 0 ? 'active' : ''}`; row.id = `step-${i}`;
       row.innerHTML = `<span class="step-icon">${i === 0 ? '⟳' : '○'}</span><span>${s}</span>`;
       sl.appendChild(row);
     });
@@ -226,7 +381,6 @@ function showTyping(steps = null) {
   } else {
     b.innerHTML = '<div class="typing"><span></span><span></span><span></span></div>';
   }
-
   d.appendChild(av); d.appendChild(b); chatEl.appendChild(d);
   chatEl.scrollTop = chatEl.scrollHeight;
 }
@@ -236,16 +390,14 @@ function updateStep(idx) {
     const icon = s.querySelector('.step-icon');
     if (i < idx)       { s.className = 'loading-step done';   icon.textContent = '✓'; }
     else if (i === idx) { s.className = 'loading-step active'; icon.textContent = '⟳'; }
-    else               { s.className = 'loading-step';        icon.textContent = '○'; }
   });
 }
 
 function hideTyping() { const t = document.getElementById('typing'); if (t) t.remove(); }
 
+// ── Attachment ──
 function setContentBtns(disabled) {
-  ['btnEval','btnCaption','btnHash','btnAll'].forEach(id => {
-    document.getElementById(id).disabled = disabled;
-  });
+  ['btnEval','btnCaption','btnHash','btnAll'].forEach(id => { document.getElementById(id).disabled = disabled; });
 }
 
 function updateAttachUI(hasFile) {
@@ -256,96 +408,60 @@ function updateAttachUI(hasFile) {
   videoNote.classList.toggle('show', hasFile && attached?.isVideo);
 }
 
-// ── File upload to Gemini File API ──
 async function uploadToGemini(file) {
   const progressBar  = document.getElementById('progressBar');
   const progressText = document.getElementById('progressText');
   const uploadProg   = document.getElementById('uploadProgress');
   uploadProg.style.display = 'block';
 
-  // Step 1: Gemini File APIに直接アップロード
   const startRes = await fetch(
     `https://generativelanguage.googleapis.com/upload/v1beta/files?key=${GEMINI_API_KEY}`,
-    {
-      method: 'POST',
-      headers: {
-        'X-Goog-Upload-Protocol': 'resumable',
-        'X-Goog-Upload-Command': 'start',
-        'X-Goog-Upload-Header-Content-Length': file.size,
-        'X-Goog-Upload-Header-Content-Type': file.type,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ file: { display_name: file.name } }),
-    }
+    { method: 'POST', headers: { 'X-Goog-Upload-Protocol': 'resumable', 'X-Goog-Upload-Command': 'start', 'X-Goog-Upload-Header-Content-Length': file.size, 'X-Goog-Upload-Header-Content-Type': file.type, 'Content-Type': 'application/json' }, body: JSON.stringify({ file: { display_name: file.name } }) }
   );
-
   const uploadUrl = startRes.headers.get('X-Goog-Upload-URL');
-  if (!uploadUrl) throw new Error('Upload URLの取得に失敗しました');
+  if (!uploadUrl) throw new Error('Upload URL取得失敗');
 
-  progressBar.style.width = '30%';
-  progressText.textContent = 'Geminiにアップロード中...';
+  progressBar.style.width = '30%'; progressText.textContent = 'Geminiにアップロード中...';
 
-  // Step 2: Upload file
-  const uploadRes = await fetch(uploadUrl, {
-    method: 'POST',
-    headers: {
-      'X-Goog-Upload-Command': 'upload, finalize',
-      'X-Goog-Upload-Offset': '0',
-      'Content-Type': file.type,
-    },
-    body: file,
-  });
-
-  progressBar.style.width = '80%';
-  progressText.textContent = '処理中...';
-
+  const uploadRes  = await fetch(uploadUrl, { method: 'POST', headers: { 'X-Goog-Upload-Command': 'upload, finalize', 'X-Goog-Upload-Offset': '0', 'Content-Type': file.type }, body: file });
   const uploadJson = await uploadRes.json();
   const fileUri    = uploadJson?.file?.uri;
   const fileName   = uploadJson?.file?.name;
+  if (!fileUri) throw new Error('fileUri取得失敗');
 
-  if (!fileUri) throw new Error('ファイルURIの取得に失敗: ' + JSON.stringify(uploadJson));
-
-  // Step 3: Wait for processing
-  let state = uploadJson?.file?.state;
+  progressBar.style.width = '80%'; progressText.textContent = '処理中...';
+  let state2 = uploadJson?.file?.state;
   let attempts = 0;
-  while (state === 'PROCESSING' && attempts < 20) {
+  while (state2 === 'PROCESSING' && attempts < 20) {
     await new Promise(r => setTimeout(r, 2000));
-    const statusRes  = await fetch(`https://generativelanguage.googleapis.com/v1beta/${fileName}?key=${GEMINI_API_KEY}`);
-    const statusJson = await statusRes.json();
-    state = statusJson?.state;
-    attempts++;
-    progressBar.style.width = `${80 + attempts * 1}%`;
+    const s = await fetch(`https://generativelanguage.googleapis.com/v1beta/${fileName}?key=${GEMINI_API_KEY}`);
+    const j = await s.json(); state2 = j?.state; attempts++;
+    progressBar.style.width = `${80 + attempts}%`;
   }
 
-  progressBar.style.width = '100%';
-  progressText.textContent = 'アップロード完了！';
+  progressBar.style.width = '100%'; progressText.textContent = 'アップロード完了！';
   setTimeout(() => { uploadProg.style.display = 'none'; }, 1000);
-
   return fileUri;
 }
 
 async function handleFile(e) {
   const f = e.target.files[0]; if (!f) return;
   const isVideo = f.type.startsWith('video');
+  const url = URL.createObjectURL(f);
   e.target.value = '';
 
-  // プレビュー表示
-  const url = URL.createObjectURL(f);
   if (isVideo) {
     document.getElementById('attachImg').style.display = 'none';
     const vEl = document.getElementById('attachVideo'); vEl.src = url; vEl.style.display = 'block';
-    document.getElementById('attachTypeLabel').textContent = '動画';
-    document.getElementById('attachTypeLabel').className = 'attach-type video';
+    document.getElementById('attachTypeLabel').textContent = '動画'; document.getElementById('attachTypeLabel').className = 'attach-type video';
   } else {
     document.getElementById('attachVideo').style.display = 'none';
     const iEl = document.getElementById('attachImg'); iEl.src = url; iEl.style.display = 'block';
-    document.getElementById('attachTypeLabel').textContent = '画像';
-    document.getElementById('attachTypeLabel').className = 'attach-type image';
+    document.getElementById('attachTypeLabel').textContent = '画像'; document.getElementById('attachTypeLabel').className = 'attach-type image';
   }
 
   attached = { type: f.type, url, isVideo, fileUri: null, data: null };
-  updateAttachUI(true);
-  setContentBtns(true);
+  updateAttachUI(true); setContentBtns(true);
 
   if (isVideo) {
     document.getElementById('uploadStatus').innerHTML = `<span class="hl blue">🎬 動画を添付しました</span><br>Gemini File APIにアップロード中...`;
@@ -359,7 +475,6 @@ async function handleFile(e) {
       attached = null; updateAttachUI(false);
     }
   } else {
-    // 画像: Base64で保持
     const r = new FileReader();
     r.onload = ev => {
       attached.data = ev.target.result.split(',')[1];
@@ -377,93 +492,65 @@ function removeAttachment() {
   updateAttachUI(false);
 }
 
+// ── Send ──
 async function sendMessage(overridePrompt = null) {
   const text = overridePrompt || inputEl.value.trim();
   if (!text && !attached) return;
   if (isLoading) return;
   isLoading = true; sendBtn.disabled = true;
 
-  addMsg('user', text || (attached?.isVideo ? '（動画を送信）' : '（画像を送信）'), attached?.url, attached?.isVideo || false);
-
+  const accountId  = currentAccount;
   const usedAttach = attached ? { ...attached } : null;
+  addMsg('user', accountId, text || (usedAttach?.isVideo ? '（動画を送信）' : '（画像を送信）'), usedAttach?.url, usedAttach?.isVideo || false);
+
   if (!overridePrompt) { inputEl.value = ''; autoResize(inputEl); }
   attached = null; updateAttachUI(false);
 
+  // メッセージ履歴
+  const msgs = state[accountId]?.messages
+    .filter(m => m.role === 'user' || m.role === 'assistant')
+    .map(m => ({ role: m.role === 'assistant' ? 'assistant' : 'user', content: m.content })) || [];
+
   if (usedAttach?.isVideo && usedAttach?.fileUri) {
-    // 動画: Gemini File API + Claude
-    showTyping([
-      'Geminiが動画を全フレーム分析中...',
-      'Claudeが日本語アドバイスを生成中...',
-    ]);
-
+    showTyping(['Geminiが動画を全フレーム分析中...', 'Claudeが日本語アドバイスを生成中...']);
     try {
-      const res  = await fetch('/api/advisor-video', {
-        method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          fileUri: usedAttach.fileUri,
-          videoMimeType: usedAttach.type,
-          clientId,
-          prompt: text || '投稿として評価・改善点・キャプション案・ハッシュタグを提案してください。',
-        }),
-      });
-
+      const res  = await fetch('/api/advisor-video', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ fileUri: usedAttach.fileUri, videoMimeType: usedAttach.type, clientId: CLIENT_ID, igUserId: accountId === 'all' ? null : accountId, prompt: text || '全部まとめて評価してください。' }) });
       updateStep(1);
       const data = await res.json();
       hideTyping();
-
-      if (data.content) {
-        addMsg('ai', data.content, null, false, true);
-        messages.push({ role: 'user',      content: `[動画分析] ${text || '評価してください'}` });
-        messages.push({ role: 'assistant', content: data.content });
-      } else {
-        addMsg('ai', `分析エラーが発生しました。\n\nGemini分析結果:\n${data.geminiAnalysis || 'なし'}`);
-      }
-    } catch (err) {
-      hideTyping(); addMsg('ai', `エラー: ${err.message}`);
-    }
-
-  } else if (usedAttach && !usedAttach.isVideo) {
-    // 画像: Claude
-    const uc = [
-      { type: 'image', source: { type: 'base64', media_type: usedAttach.type, data: usedAttach.data } },
-    ];
-    if (text) uc.push({ type: 'text', text });
-    messages.push({ role: 'user', content: uc });
-    showTyping();
-    try {
-      const res  = await fetch('/api/advisor', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ messages, clientId }) });
-      const data = await res.json();
-      hideTyping();
-      if (data.content) { addMsg('ai', data.content); messages.push({ role: 'assistant', content: data.content }); }
-      else addMsg('ai', 'エラーが発生しました。');
-    } catch (e) { hideTyping(); addMsg('ai', 'エラーが発生しました。'); }
+      if (data.content) addMsg('ai', accountId, data.content, null, false, true);
+      else addMsg('ai', accountId, `エラー: ${data.geminiAnalysis || '不明'}`);
+    } catch (e) { hideTyping(); addMsg('ai', accountId, `エラー: ${e.message}`); }
 
   } else {
-    // テキストのみ: Claude
-    messages.push({ role: 'user', content: text });
+    const uc = [];
+    if (usedAttach?.data) uc.push({ type: 'image', source: { type: 'base64', media_type: usedAttach.type, data: usedAttach.data } });
+    if (text) uc.push({ type: 'text', text });
+    const lastContent = uc.length === 1 && uc[0].type === 'text' ? text : uc;
+    const sendMsgs = [...msgs.slice(0, -1), { role: 'user', content: lastContent }];
+
     showTyping();
     try {
-      const res  = await fetch('/api/advisor', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ messages, clientId }) });
+      const res  = await fetch('/api/advisor', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ messages: sendMsgs, clientId: CLIENT_ID, igUserId: accountId === 'all' ? null : accountId }) });
       const data = await res.json();
       hideTyping();
-      if (data.content) { addMsg('ai', data.content); messages.push({ role: 'assistant', content: data.content }); }
-      else addMsg('ai', 'エラーが発生しました。');
-    } catch (e) { hideTyping(); addMsg('ai', 'エラーが発生しました。'); }
+      if (data.content) addMsg('ai', accountId, data.content);
+      else addMsg('ai', accountId, 'エラーが発生しました。');
+    } catch (e) { hideTyping(); addMsg('ai', accountId, 'エラーが発生しました。'); }
   }
 
   isLoading = false; sendBtn.disabled = false;
 }
 
 function runContent(type) {
-  if (!attached && !document.getElementById('attachVideo').src) { alert('先にファイルを添付してください'); return; }
+  if (!attached) { alert('先にファイルを添付してください'); return; }
   const prompts = {
     evaluate: '投稿として詳しく評価してください。スコア・強み・改善点・予想パフォーマンスを過去データと比較して。',
     caption:  'この投稿に合うInstagramキャプションを3パターン生成してください。過去の成功投稿の傾向を踏まえて。インバウンド向けは日英バイリンガルで。',
     hashtag:  'この投稿に最適なハッシュタグを提案してください。必須タグ・ニッチタグ・バイラルタグ・インバウンド英語タグのカテゴリ別に。',
     all:      '以下を全部まとめてください: ①投稿評価（スコア・強み・改善点）②キャプション案3パターン ③ハッシュタグ提案（カテゴリ別）④最適な投稿タイミング',
   };
-  inputEl.value = prompts[type];
-  sendMessage();
+  inputEl.value = prompts[type]; sendMessage();
 }
 
 function sendQuick(t) { inputEl.value = t; sendMessage(); }
