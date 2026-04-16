@@ -7,6 +7,10 @@
   "functions": {
     "api/advisor-video.js": {
       "maxDuration": 60
+    },
+    "api/upload-video.js": {
+      "maxDuration": 60,
+      "memory": 1024
     }
   }
 }
