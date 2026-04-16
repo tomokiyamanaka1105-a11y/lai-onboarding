@@ -152,6 +152,7 @@
   </div>
   <div class="header-actions">
     <button class="icon-btn" onclick="openProfile()" title="目標・方針を設定">🎯</button>
+    <button class="icon-btn" onclick="clearChatLog(currentAccount)" title="チャット履歴を削除">🗑️</button>
   </div>
 </div>
 
@@ -302,6 +303,8 @@ window.addEventListener('load', async () => {
   } catch(e) {}
 
   await loadAccountData();
+  // チャットログ復元
+  await restoreAllLogs();
   renderQuickReplies();
   addMsg('ai', 'all', 'こんにちは！L-A-Iアドバイザーです。\n\n上のタブでアカウントを切り替えられます。\n**🎯ボタン**でアカウントごとの目標・方針を設定すると、より精度の高いアドバイスが届きます。\n\n画像・動画を添付してコンテンツ評価・キャプション・ハッシュタグも生成できます。');
 });
@@ -702,6 +705,8 @@ async function sendMessage(overridePrompt = null) {
     } catch(e) { hideTyping(); addMsg('ai', accountId, 'エラーが発生しました。'); }
   }
 
+  // チャットログ保存
+  await saveChatLog(accountId);
   isLoading = false; sendBtn.disabled = false;
 }
 
@@ -719,6 +724,60 @@ function runContent(type) {
 function sendQuick(t) { inputEl.value = t; sendMessage(); }
 function handleKey(e) { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); } }
 function autoResize(el) { el.style.height = 'auto'; el.style.height = Math.min(el.scrollHeight, 100) + 'px'; }
+
+// ── Chat log (Vercel KV) ──
+async function saveChatLog(accountId) {
+  try {
+    const msgs = (accountState[accountId]?.messages || [])
+      .filter(m => m.role === 'user' || m.role === 'ai')
+      .map(m => ({ role: m.role, content: m.content }))
+      .slice(-50);
+    await fetch('/api/chat-log', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ clientId: CLIENT_ID, accountId, messages: msgs }),
+    });
+  } catch(e) { console.warn('ログ保存失敗:', e); }
+}
+
+async function restoreLog(accountId) {
+  try {
+    const res  = await fetch(`/api/chat-log?clientId=${CLIENT_ID}&accountId=${accountId}`);
+    const data = await res.json();
+    if (!data.messages?.length) return;
+
+    data.messages.forEach(m => {
+      if (!accountState[accountId]) accountState[accountId] = { messages: [], label: accountId, igUserId: accountId };
+      const d  = document.createElement('div'); d.className = `message ${m.role === 'ai' ? 'ai' : 'user'}`;
+      const av = document.createElement('div'); av.className = `avatar ${m.role === 'ai' ? 'ai' : 'me'}`; av.textContent = m.role === 'ai' ? 'AI' : '私';
+      const b  = document.createElement('div'); b.className = 'bubble';
+      const txt = document.createElement('div'); txt.innerHTML = fmt(typeof m.content === 'string' ? m.content : ''); b.appendChild(txt);
+      d.appendChild(av); d.appendChild(b);
+      accountState[accountId].messages.push({ role: m.role, content: m.content, _el: d });
+    });
+    console.log(`✅ ログ復元: ${accountId} ${data.messages.length}件`);
+  } catch(e) { console.warn('ログ復元失敗:', e); }
+}
+
+async function restoreAllLogs() {
+  // all + 各アカウント
+  const ids = ['all', ...Object.keys(accountState).filter(k => k !== 'all')];
+  await Promise.all(ids.map(id => restoreLog(id)));
+}
+
+async function clearChatLog(accountId) {
+  if (!confirm('このアカウントのチャット履歴を削除しますか？')) return;
+  try {
+    await fetch('/api/chat-log', {
+      method: 'DELETE',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ clientId: CLIENT_ID, accountId }),
+    });
+    if (accountState[accountId]) accountState[accountId].messages = [];
+    chatEl.innerHTML = '';
+    addMsg('ai', accountId, 'チャット履歴を削除しました。');
+  } catch(e) { alert('削除失敗: ' + e.message); }
+}
 </script>
 </body>
 </html>
