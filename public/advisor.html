@@ -13,18 +13,21 @@
     --purple: #a78bfa; --purple2: rgba(167,139,250,0.1);
     --blue: #38bdf8; --blue2: rgba(56,189,248,0.1);
   }
-  body { background: var(--bg); color: var(--text); font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; height: 100dvh; display: flex; flex-direction: column; }
+  body { background: var(--bg); color: var(--text); font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; height: 100dvh; display: flex; flex-direction: column; overflow: hidden; }
+
+  /* Header */
   .header { padding: 14px 20px; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 12px; flex-shrink: 0; }
   .logo { font-size: 18px; font-weight: 700; letter-spacing: -0.02em; }
   .logo span { color: var(--accent); }
-  .header-badge { font-size: 10px; font-weight: 600; letter-spacing: 0.08em; color: var(--accent); background: var(--accent2); padding: 3px 8px; border-radius: 100px; }
-  .mode-tabs { padding: 10px 20px; border-bottom: 1px solid var(--border); display: flex; gap: 6px; flex-shrink: 0; }
-  .tab-btn { padding: 7px 16px; border-radius: 100px; border: 1px solid var(--border); background: var(--bg2); color: var(--text2); font-size: 12px; cursor: pointer; transition: all 0.2s; }
-  .tab-btn.active-chat { border-color: var(--accent); color: var(--accent); background: var(--accent2); }
-  .tab-btn.active-content { border-color: var(--purple); color: var(--purple); background: var(--purple2); }
-  .chat { flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 16px; }
+  .badge { font-size: 10px; font-weight: 600; color: var(--accent); background: var(--accent2); padding: 3px 8px; border-radius: 100px; }
+  .status { margin-left: auto; font-size: 11px; color: var(--text2); display: flex; align-items: center; gap: 5px; }
+  .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--accent); animation: pulse 2s infinite; }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
+
+  /* Chat */
+  .chat { flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 14px; }
   .message { display: flex; gap: 10px; animation: fadeIn 0.3s ease; }
-  @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+  @keyframes fadeIn { from { opacity:0; transform:translateY(8px); } to { opacity:1; transform:translateY(0); } }
   .message.user { flex-direction: row-reverse; }
   .avatar { width: 30px; height: 30px; border-radius: 50%; flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; }
   .avatar.ai { background: var(--accent2); color: var(--accent); border: 1px solid rgba(200,245,100,0.2); }
@@ -32,177 +35,169 @@
   .bubble { max-width: calc(100% - 46px); padding: 11px 14px; border-radius: 16px; font-size: 14px; line-height: 1.65; }
   .message.ai .bubble { background: var(--bg2); border: 1px solid var(--border); border-top-left-radius: 4px; }
   .message.user .bubble { background: var(--accent2); border: 1px solid rgba(200,245,100,0.2); border-top-right-radius: 4px; }
-  .bubble img { max-width: 100%; border-radius: 8px; margin-top: 8px; display: block; }
+  .bubble img { max-width: 100%; border-radius: 8px; margin-top: 8px; display: block; max-height: 200px; object-fit: cover; }
   .bubble strong { font-weight: 600; }
   .bubble code { background: var(--bg3); padding: 1px 5px; border-radius: 4px; font-family: monospace; font-size: 12px; color: var(--accent); }
+  .bubble ul, .bubble ol { padding-left: 18px; margin: 6px 0; }
+  .bubble li { margin: 3px 0; }
+
+  /* Typing */
   .typing { display: flex; gap: 4px; padding: 4px 0; }
   .typing span { width: 6px; height: 6px; border-radius: 50%; background: var(--text2); animation: bounce 1.2s infinite; }
   .typing span:nth-child(2) { animation-delay: 0.2s; }
   .typing span:nth-child(3) { animation-delay: 0.4s; }
-  @keyframes bounce { 0%,60%,100% { transform: translateY(0); } 30% { transform: translateY(-6px); } }
-  .quick-replies { padding: 0 20px 10px; display: flex; flex-wrap: wrap; gap: 6px; flex-shrink: 0; }
+  @keyframes bounce { 0%,60%,100%{transform:translateY(0)} 30%{transform:translateY(-6px)} }
+
+  /* Bottom area */
+  .bottom { flex-shrink: 0; border-top: 1px solid var(--border); }
+
+  /* Image preview */
+  .img-preview-area { display: none; padding: 12px 20px 0; }
+  .img-preview-area.show { display: flex; gap: 10px; align-items: flex-start; }
+  .preview-thumb { position: relative; width: 72px; height: 72px; flex-shrink: 0; }
+  .preview-thumb img { width: 100%; height: 100%; object-fit: cover; border-radius: 10px; border: 1px solid var(--border); }
+  .remove-thumb { position: absolute; top: -5px; right: -5px; width: 18px; height: 18px; border-radius: 50%; background: #ff4444; color: white; font-size: 11px; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+  .preview-label { font-size: 12px; color: var(--text2); padding-top: 4px; line-height: 1.5; }
+  .preview-label strong { color: var(--purple); font-size: 12px; }
+
+  /* Content action buttons - shown when image is attached */
+  .content-actions { display: none; padding: 10px 20px 0; gap: 6px; flex-wrap: wrap; }
+  .content-actions.show { display: flex; }
+  .ca-btn { padding: 6px 14px; border-radius: 100px; border: 1px solid rgba(167,139,250,0.3); background: var(--purple2); color: var(--purple); font-size: 11px; font-weight: 600; cursor: pointer; transition: all 0.2s; white-space: nowrap; }
+  .ca-btn:hover { background: rgba(167,139,250,0.2); border-color: var(--purple); }
+  .ca-btn.accent { border-color: rgba(200,245,100,0.3); background: var(--accent2); color: var(--accent); }
+  .ca-btn.accent:hover { background: rgba(200,245,100,0.2); }
+  .ca-btn.blue { border-color: rgba(56,189,248,0.3); background: var(--blue2); color: var(--blue); }
+  .ca-btn.blue:hover { background: rgba(56,189,248,0.2); }
+
+  /* Quick replies */
+  .quick-replies { padding: 10px 20px 0; display: flex; flex-wrap: wrap; gap: 6px; }
   .quick-btn { padding: 6px 12px; border-radius: 100px; border: 1px solid var(--border); background: var(--bg2); color: var(--text2); font-size: 11px; cursor: pointer; transition: all 0.2s; white-space: nowrap; }
   .quick-btn:hover { border-color: var(--accent); color: var(--accent); background: var(--accent2); }
-  .input-area { padding: 10px 20px 20px; border-top: 1px solid var(--border); flex-shrink: 0; }
+
+  /* Input */
+  .input-area { padding: 10px 20px 20px; }
   .input-box { background: var(--bg2); border: 1px solid var(--border); border-radius: 14px; padding: 10px 14px; display: flex; gap: 10px; align-items: flex-end; transition: border-color 0.2s; }
   .input-box:focus-within { border-color: rgba(200,245,100,0.4); }
   .input-box textarea { flex: 1; background: none; border: none; outline: none; color: var(--text); font-size: 14px; line-height: 1.5; resize: none; max-height: 100px; min-height: 22px; font-family: inherit; }
   .input-box textarea::placeholder { color: var(--text2); }
-  .input-actions { display: flex; gap: 6px; align-items: center; flex-shrink: 0; }
-  .img-btn { width: 32px; height: 32px; border-radius: 8px; border: 1px solid var(--border); background: var(--bg3); color: var(--text2); cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 15px; transition: all 0.2s; }
-  .img-btn:hover { border-color: var(--accent); color: var(--accent); }
+  .img-btn { width: 32px; height: 32px; border-radius: 8px; border: 1px solid var(--border); background: var(--bg3); color: var(--text2); cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 15px; transition: all 0.2s; flex-shrink: 0; }
+  .img-btn:hover, .img-btn.active { border-color: var(--purple); color: var(--purple); background: var(--purple2); }
   .send-btn { width: 32px; height: 32px; border-radius: 8px; border: none; background: var(--accent); color: var(--bg); cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 14px; transition: opacity 0.2s; flex-shrink: 0; }
   .send-btn:disabled { opacity: 0.3; cursor: not-allowed; }
-  .img-preview { display: flex; gap: 8px; padding: 8px 20px 0; flex-wrap: wrap; }
-  .img-preview-item { position: relative; width: 60px; height: 60px; }
-  .img-preview-item img { width: 100%; height: 100%; object-fit: cover; border-radius: 8px; border: 1px solid var(--border); }
-  .img-preview-item .remove { position: absolute; top: -4px; right: -4px; width: 16px; height: 16px; border-radius: 50%; background: #ff4444; color: white; font-size: 10px; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; }
-  /* Content panel */
-  .content-panel { display: none; flex-direction: column; flex: 1; overflow: hidden; }
-  .upload-area { margin: 16px 20px; border: 2px dashed var(--border); border-radius: 16px; padding: 28px 20px; text-align: center; cursor: pointer; transition: all 0.2s; flex-shrink: 0; }
-  .upload-area:hover, .upload-area.has-image { border-color: var(--purple); background: var(--purple2); }
-  .upload-icon { font-size: 32px; margin-bottom: 10px; }
-  .upload-title { font-size: 14px; font-weight: 600; color: var(--text); margin-bottom: 4px; }
-  .upload-desc { font-size: 12px; color: var(--text2); }
-  .preview-img { max-height: 180px; max-width: 100%; border-radius: 10px; margin: 0 auto; display: block; }
-  .action-btns { padding: 0 20px 10px; display: flex; gap: 8px; flex-wrap: wrap; flex-shrink: 0; }
-  .action-btn { padding: 8px 16px; border-radius: 100px; border: 1px solid var(--border); background: var(--bg2); color: var(--text2); font-size: 12px; cursor: pointer; transition: all 0.2s; }
-  .action-btn:hover { border-color: var(--purple); color: var(--purple); background: var(--purple2); }
-  .action-btn.primary { border-color: var(--purple); color: var(--purple); background: var(--purple2); font-weight: 600; }
-  .result-area { flex: 1; overflow-y: auto; padding: 0 20px 20px; display: flex; flex-direction: column; gap: 12px; }
-  .result-card { background: var(--bg2); border: 1px solid var(--border); border-radius: 14px; padding: 16px 18px; animation: fadeIn 0.3s ease; }
-  .result-title { font-size: 11px; font-weight: 600; letter-spacing: 0.08em; margin-bottom: 12px; }
-  .result-title.purple { color: var(--purple); }
-  .result-title.blue { color: var(--blue); }
-  .result-title.green { color: var(--accent); }
-  .caption-option { background: var(--bg3); border-radius: 10px; padding: 12px 14px; margin-bottom: 8px; font-size: 13px; line-height: 1.6; color: var(--text); position: relative; border: 1px solid transparent; }
-  .caption-option:hover { border-color: var(--purple); }
-  .caption-num { font-size: 10px; font-weight: 600; color: var(--purple); margin-bottom: 6px; }
-  .copy-btn { padding: 3px 8px; border-radius: 100px; border: 1px solid var(--border); background: var(--bg2); color: var(--text2); font-size: 10px; cursor: pointer; margin-top: 8px; }
-  .hashtag { display: inline-block; padding: 4px 10px; border-radius: 100px; background: var(--blue2); border: 1px solid rgba(56,189,248,0.2); color: var(--blue); font-size: 12px; cursor: pointer; margin: 3px; transition: all 0.2s; }
-  .hashtag:hover { background: rgba(56,189,248,0.2); }
-  #file-input, #content-file-input { display: none; }
-  .empty-state { text-align: center; padding: 40px 20px; color: var(--text2); font-size: 13px; line-height: 1.7; }
+  #file-input { display: none; }
+
+  /* Copy button in results */
+  .copy-inline { padding: 3px 9px; border-radius: 100px; border: 1px solid var(--border); background: var(--bg3); color: var(--text2); font-size: 10px; cursor: pointer; margin-left: 8px; vertical-align: middle; }
+  .copy-inline:hover { border-color: var(--accent); color: var(--accent); }
+  .hashtag-tag { display: inline-block; padding: 3px 9px; border-radius: 100px; background: var(--blue2); border: 1px solid rgba(56,189,248,0.2); color: var(--blue); font-size: 12px; cursor: pointer; margin: 2px; }
+  .hashtag-tag:hover { background: rgba(56,189,248,0.25); }
 </style>
 </head>
 <body>
 
 <div class="header">
   <div class="logo">L-<span>A</span>-I</div>
-  <div class="header-badge">AIアドバイザー</div>
-  <div style="margin-left:auto;font-size:11px;color:var(--text2);">● 接続済み</div>
+  <div class="badge">AIアドバイザー</div>
+  <div class="status"><div class="dot"></div>オンライン</div>
 </div>
 
-<div class="mode-tabs">
-  <button class="tab-btn active-chat" id="chatTab" onclick="switchTab('chat')">💬 チャット</button>
-  <button class="tab-btn" id="contentTab" onclick="switchTab('content')">🎨 コンテンツ分析</button>
-</div>
+<div class="chat" id="chat"></div>
 
-<!-- CHAT -->
-<div id="chatMode" style="display:flex;flex-direction:column;flex:1;overflow:hidden;">
-  <div class="chat" id="chat"></div>
-  <div class="img-preview" id="imgPreview"></div>
-  <div class="quick-replies">
+<div class="bottom">
+  <!-- Image preview area -->
+  <div class="img-preview-area" id="imgPreviewArea">
+    <div class="preview-thumb">
+      <img id="previewThumb" src="" alt="">
+      <button class="remove-thumb" onclick="removeImage()">×</button>
+    </div>
+    <div class="preview-label">
+      <strong>画像を添付済み</strong><br>
+      下のボタンで分析、またはテキストで指示を送ってください
+    </div>
+  </div>
+
+  <!-- Content action buttons (image attached) -->
+  <div class="content-actions" id="contentActions">
+    <button class="ca-btn accent" onclick="runContent('evaluate')">📊 投稿評価</button>
+    <button class="ca-btn" onclick="runContent('caption')">✏️ キャプション生成</button>
+    <button class="ca-btn blue" onclick="runContent('hashtag')"># ハッシュタグ</button>
+    <button class="ca-btn" onclick="runContent('all')">✨ 全部まとめて</button>
+  </div>
+
+  <!-- Quick replies (no image) -->
+  <div class="quick-replies" id="quickReplies">
     <button class="quick-btn" onclick="sendQuick('先週のパフォーマンスを分析して')">先週の分析</button>
-    <button class="quick-btn" onclick="sendQuick('今週どの曜日・時間に投稿すべき？')">最適投稿時間</button>
+    <button class="quick-btn" onclick="sendQuick('最適な投稿時間を教えて')">最適投稿時間</button>
     <button class="quick-btn" onclick="sendQuick('リールとカルーセルどちらを増やすべき？')">形式の比較</button>
     <button class="quick-btn" onclick="sendQuick('フォロワーを増やすために今すぐできることは？')">フォロワー増加</button>
-    <button class="quick-btn" onclick="sendQuick('JKTとWKSを比較して、どちらに注力すべき？')">アカウント比較</button>
+    <button class="quick-btn" onclick="sendQuick('JKTとWKSを比較してどちらに注力すべき？')">アカウント比較</button>
     <button class="quick-btn" onclick="sendQuick('来週の投稿プランを作って')">投稿プラン</button>
     <button class="quick-btn" onclick="sendQuick('広告に¥5,000使うとしたらどう使う？')">広告戦略</button>
   </div>
+
+  <!-- Input -->
   <div class="input-area">
     <div class="input-box">
-      <textarea id="input" placeholder="データについて何でも聞いてください..." rows="1"
+      <textarea id="input" placeholder="何でも聞いてください、または画像を添付してください..." rows="1"
         onkeydown="handleKey(event)" oninput="autoResize(this)"></textarea>
-      <div class="input-actions">
-        <button class="img-btn" onclick="document.getElementById('file-input').click()">📎</button>
-        <button class="send-btn" id="sendBtn" onclick="sendMessage()">↑</button>
-      </div>
+      <button class="img-btn" id="imgBtn" onclick="document.getElementById('file-input').click()" title="画像を添付">📎</button>
+      <button class="send-btn" id="sendBtn" onclick="sendMessage()">↑</button>
     </div>
-    <input type="file" id="file-input" accept="image/*" multiple onchange="handleChatFiles(event)">
-  </div>
-</div>
-
-<!-- CONTENT ANALYSIS -->
-<div id="contentMode" class="content-panel">
-  <div class="upload-area" id="uploadArea" onclick="document.getElementById('content-file-input').click()">
-    <div id="uploadDefault">
-      <div class="upload-icon">🖼️</div>
-      <div class="upload-title">投稿予定の画像・動画を添付</div>
-      <div class="upload-desc">タップして選択</div>
-    </div>
-    <div id="uploadPreview" style="display:none;">
-      <img id="previewImg" class="preview-img" src="" alt="">
-      <div style="margin-top:10px;">
-        <button onclick="removeContentImg(event)" style="padding:5px 12px;border-radius:100px;border:1px solid rgba(255,107,107,0.3);background:rgba(255,107,107,0.1);color:#ff6b6b;font-size:11px;cursor:pointer;">✕ 画像を変更</button>
-      </div>
-    </div>
-  </div>
-  <input type="file" id="content-file-input" accept="image/*,video/*" onchange="handleContentFile(event)">
-
-  <div class="action-btns">
-    <button class="action-btn primary" onclick="runAnalysis('evaluate')">📊 投稿評価</button>
-    <button class="action-btn" onclick="runAnalysis('caption')">✏️ キャプション生成</button>
-    <button class="action-btn" onclick="runAnalysis('hashtag')"># ハッシュタグ提案</button>
-    <button class="action-btn" onclick="runAnalysis('all')">✨ 全部まとめて</button>
-  </div>
-
-  <div class="result-area" id="resultArea">
-    <div class="empty-state">投稿予定の画像をアップロードして<br>AIによる分析・提案を受けましょう</div>
+    <input type="file" id="file-input" accept="image/*,video/*" onchange="handleFile(event)">
   </div>
 </div>
 
 <script>
-const chatEl     = document.getElementById('chat');
-const inputEl    = document.getElementById('input');
-const sendBtn    = document.getElementById('sendBtn');
-const resultArea = document.getElementById('resultArea');
+const chatEl         = document.getElementById('chat');
+const inputEl        = document.getElementById('input');
+const sendBtn        = document.getElementById('sendBtn');
+const imgPreviewArea = document.getElementById('imgPreviewArea');
+const contentActions = document.getElementById('contentActions');
+const quickReplies   = document.getElementById('quickReplies');
+const imgBtn         = document.getElementById('imgBtn');
 
-let messages      = [];
-let clientId      = 'C001';
-let isLoading     = false;
-let pendingImages = [];
-let contentImage  = null;
+let messages     = [];
+let clientId     = 'C001';
+let isLoading    = false;
+let attachedImage = null; // { data, type, url }
 
+// Init
 window.addEventListener('load', () => {
-  addMsg('ai', 'こんにちは！L-A-Iアドバイザーです。\n\nJKTとWKSのデータを参照して回答します。\n\n**チャット**: データについて何でも質問\n**コンテンツ分析**: 投稿予定の画像からキャプション・ハッシュタグを生成\n\n何でも聞いてください！');
+  addMsg('ai', 'こんにちは！L-A-Iアドバイザーです。\n\nJKTとWKSのデータを参照してリアルタイムでアドバイスします。\n\n**チャット**: データについて何でも質問\n**画像添付**: 📎で投稿予定の画像を添付して評価・キャプション・ハッシュタグを生成\n\n何でも聞いてください！');
 });
 
-function switchTab(tab) {
-  const isChat = tab === 'chat';
-  document.getElementById('chatMode').style.display    = isChat ? 'flex' : 'none';
-  document.getElementById('contentMode').style.display = isChat ? 'none' : 'flex';
-  if (isChat) document.getElementById('chatMode').style.flexDirection = 'column';
-  document.getElementById('chatTab').className    = 'tab-btn' + (isChat ? ' active-chat' : '');
-  document.getElementById('contentTab').className = 'tab-btn' + (!isChat ? ' active-content' : '');
+// ── Helpers ──
+function fmt(t) {
+  return t
+    .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+    .replace(/`(.*?)`/g, '<code>$1</code>')
+    .replace(/\n/g, '<br>');
 }
 
 function addMsg(role, content, imgUrl = null) {
-  const d = document.createElement('div');
+  const d  = document.createElement('div');
   d.className = `message ${role}`;
   const av = document.createElement('div');
   av.className = `avatar ${role === 'ai' ? 'ai' : 'me'}`;
   av.textContent = role === 'ai' ? 'AI' : '私';
-  const b = document.createElement('div');
+  const b  = document.createElement('div');
   b.className = 'bubble';
   b.innerHTML = fmt(content);
-  if (imgUrl) { const i = document.createElement('img'); i.src = imgUrl; b.appendChild(i); }
+  if (imgUrl) {
+    const img = document.createElement('img');
+    img.src = imgUrl;
+    b.appendChild(img);
+  }
   d.appendChild(av); d.appendChild(b);
   chatEl.appendChild(d);
   chatEl.scrollTop = chatEl.scrollHeight;
 }
 
-function fmt(t) {
-  return t.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-          .replace(/`(.*?)`/g, '<code>$1</code>')
-          .replace(/\n/g, '<br>');
-}
-
 function showTyping() {
-  const d = document.createElement('div'); d.className = 'message ai'; d.id = 'typing';
+  const d  = document.createElement('div'); d.className = 'message ai'; d.id = 'typing';
   const av = document.createElement('div'); av.className = 'avatar ai'; av.textContent = 'AI';
-  const b = document.createElement('div'); b.className = 'bubble';
+  const b  = document.createElement('div'); b.className = 'bubble';
   b.innerHTML = '<div class="typing"><span></span><span></span><span></span></div>';
   d.appendChild(av); d.appendChild(b); chatEl.appendChild(d);
   chatEl.scrollTop = chatEl.scrollHeight;
@@ -210,149 +205,135 @@ function showTyping() {
 
 function hideTyping() { const t = document.getElementById('typing'); if (t) t.remove(); }
 
-async function sendMessage() {
-  const text = inputEl.value.trim();
-  if ((!text && pendingImages.length === 0) || isLoading) return;
+function updateImageUI(hasImage) {
+  imgPreviewArea.classList.toggle('show', hasImage);
+  contentActions.style.display  = hasImage ? 'flex' : 'none';
+  quickReplies.style.display    = hasImage ? 'none' : 'flex';
+  imgBtn.classList.toggle('active', hasImage);
+}
+
+// ── File handling ──
+function handleFile(e) {
+  const f = e.target.files[0]; if (!f) return;
+  const r = new FileReader();
+  r.onload = ev => {
+    attachedImage = {
+      data: ev.target.result.split(',')[1],
+      type: f.type.startsWith('video') ? 'image/jpeg' : f.type,
+      url:  ev.target.result,
+    };
+    document.getElementById('previewThumb').src = ev.target.result;
+    updateImageUI(true);
+  };
+  r.readAsDataURL(f);
+  e.target.value = '';
+}
+
+function removeImage() {
+  attachedImage = null;
+  document.getElementById('previewThumb').src = '';
+  updateImageUI(false);
+}
+
+// ── Send message ──
+async function sendMessage(overrideText = null) {
+  const text = overrideText || inputEl.value.trim();
+  if (!text && !attachedImage) return;
+  if (isLoading) return;
+
   isLoading = true; sendBtn.disabled = true;
 
-  addMsg('user', text || '（画像を送信）', pendingImages[0]?.url || null);
+  // Show user message
+  addMsg('user', text || '（画像を送信）', attachedImage?.url || null);
 
+  // Build content
   const uc = [];
-  if (text) uc.push({ type: 'text', text });
-  pendingImages.forEach(img => uc.push({ type: 'image', source: { type: 'base64', media_type: img.type, data: img.data } }));
-  messages.push({ role: 'user', content: uc.length === 1 && uc[0].type === 'text' ? text : uc });
+  if (attachedImage) uc.push({ type: 'image', source: { type: 'base64', media_type: attachedImage.type, data: attachedImage.data } });
+  if (text)          uc.push({ type: 'text', text });
+  const msgContent = uc.length === 1 && uc[0].type === 'text' ? text : uc;
+  messages.push({ role: 'user', content: msgContent });
 
-  inputEl.value = ''; autoResize(inputEl);
-  pendingImages = []; document.getElementById('imgPreview').innerHTML = '';
+  // Clear input
+  if (!overrideText) { inputEl.value = ''; autoResize(inputEl); }
+  const usedImage = attachedImage;
+  if (attachedImage) { attachedImage = null; updateImageUI(false); }
+
   showTyping();
 
   try {
-    const res  = await fetch('/api/advisor', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ messages, clientId }) });
+    const res  = await fetch('/api/advisor', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ messages, clientId }),
+    });
     const data = await res.json();
     hideTyping();
-    if (data.content) { addMsg('ai', data.content); messages.push({ role: 'assistant', content: data.content }); }
-    else addMsg('ai', 'エラーが発生しました。もう一度お試しください。');
-  } catch (e) { hideTyping(); addMsg('ai', 'エラーが発生しました。もう一度お試しください。'); }
+
+    if (data.content) {
+      // Render special content for hashtags
+      if (data.content.includes('#') && data.content.match(/#[\w\u3040-\u30FF\u3400-\u9FFF]+/g)) {
+        addMsgWithHashtags('ai', data.content);
+      } else {
+        addMsg('ai', data.content);
+      }
+      messages.push({ role: 'assistant', content: data.content });
+    } else {
+      addMsg('ai', 'エラーが発生しました。もう一度お試しください。');
+    }
+  } catch (e) {
+    hideTyping();
+    addMsg('ai', 'エラーが発生しました。もう一度お試しください。');
+  }
 
   isLoading = false; sendBtn.disabled = false;
 }
 
+// Special render for hashtag results
+function addMsgWithHashtags(role, content) {
+  const d  = document.createElement('div'); d.className = `message ${role}`;
+  const av = document.createElement('div'); av.className = 'avatar ai'; av.textContent = 'AI';
+  const b  = document.createElement('div'); b.className = 'bubble';
+
+  // Split text and extract hashtags
+  const tags = content.match(/#[\w\u3040-\u30FF\u3400-\u9FFF]+/g) || [];
+  b.innerHTML = fmt(content);
+
+  // Add copy all button if hashtags found
+  if (tags.length > 0) {
+    const copyAllBtn = document.createElement('button');
+    copyAllBtn.style.cssText = 'margin-top:12px;padding:7px 16px;border-radius:100px;border:1px solid var(--blue);background:var(--blue2);color:var(--blue);font-size:12px;cursor:pointer;display:block;width:100%;';
+    copyAllBtn.textContent = '# 全てのハッシュタグをコピー';
+    copyAllBtn.onclick = () => {
+      navigator.clipboard.writeText(tags.join(' '));
+      copyAllBtn.textContent = '✓ コピーしました';
+      setTimeout(() => copyAllBtn.textContent = '# 全てのハッシュタグをコピー', 2000);
+    };
+    b.appendChild(copyAllBtn);
+  }
+
+  d.appendChild(av); d.appendChild(b);
+  chatEl.appendChild(d);
+  chatEl.scrollTop = chatEl.scrollHeight;
+}
+
+// ── Content analysis shortcuts ──
+function runContent(type) {
+  if (!attachedImage) { alert('先に画像を添付してください'); return; }
+
+  const prompts = {
+    evaluate: 'この画像を投稿として評価してください。スコア・強み・改善点・予想パフォーマンスを過去データと比較して教えてください。',
+    caption:  'この画像に合うInstagramキャプションを3パターン生成してください。過去の成功投稿の傾向を踏まえて、アカウントに合ったものにしてください。インバウンド向けは日英バイリンガルで。',
+    hashtag:  'この画像に最適なハッシュタグを提案してください。必須タグ・ニッチタグ・バイラルタグ・インバウンド向け英語タグのカテゴリ別に。',
+    all:      'この投稿予定の画像について以下を全部まとめてください: ①投稿評価（スコア・強み・改善点）②キャプション案3パターン ③ハッシュタグ提案（カテゴリ別）④最適な投稿タイミング',
+  };
+
+  inputEl.value = prompts[type];
+  sendMessage();
+}
+
+// ── Other helpers ──
 function sendQuick(t) { inputEl.value = t; sendMessage(); }
 function handleKey(e) { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); } }
 function autoResize(el) { el.style.height = 'auto'; el.style.height = Math.min(el.scrollHeight, 100) + 'px'; }
-
-function handleChatFiles(e) {
-  Array.from(e.target.files).forEach(f => {
-    const r = new FileReader();
-    r.onload = ev => {
-      pendingImages.push({ data: ev.target.result.split(',')[1], type: f.type, url: ev.target.result });
-      const p = document.getElementById('imgPreview');
-      const item = document.createElement('div'); item.className = 'img-preview-item';
-      item.innerHTML = `<img src="${ev.target.result}"><button class="remove" onclick="this.parentElement.remove()">×</button>`;
-      p.appendChild(item);
-    };
-    r.readAsDataURL(f);
-  });
-  e.target.value = '';
-}
-
-function handleContentFile(e) {
-  const f = e.target.files[0]; if (!f) return;
-  const r = new FileReader();
-  r.onload = ev => {
-    contentImage = { data: ev.target.result.split(',')[1], type: f.type.startsWith('video') ? 'image/jpeg' : f.type, url: ev.target.result };
-    document.getElementById('uploadDefault').style.display = 'none';
-    document.getElementById('uploadPreview').style.display = 'block';
-    document.getElementById('previewImg').src = ev.target.result;
-    document.getElementById('uploadArea').classList.add('has-image');
-    resultArea.innerHTML = '<div class="empty-state">画像を読み込みました。上のボタンで分析してください。</div>';
-  };
-  r.readAsDataURL(f); e.target.value = '';
-}
-
-function removeContentImg(e) {
-  e.stopPropagation(); contentImage = null;
-  document.getElementById('uploadDefault').style.display = 'block';
-  document.getElementById('uploadPreview').style.display = 'none';
-  document.getElementById('uploadArea').classList.remove('has-image');
-  resultArea.innerHTML = '<div class="empty-state">投稿予定の画像をアップロードして<br>AIによる分析・提案を受けましょう</div>';
-}
-
-async function runAnalysis(type) {
-  if (!contentImage) { alert('先に画像をアップロードしてください'); return; }
-  resultArea.innerHTML = '<div style="text-align:center;padding:40px 20px;"><div class="typing" style="justify-content:center;"><span></span><span></span><span></span></div><div style="color:var(--text2);font-size:13px;margin-top:12px;">AIが分析中...</div></div>';
-
-  const prompts = {
-    evaluate: `この投稿予定の画像を評価してください。\n\n**投稿評価スコア: XX/100**\n（根拠を1〜2文で）\n\n**強み**\n- （2〜3点）\n\n**改善点**\n- （2〜3点）\n\n**予想パフォーマンス**\n過去のデータと比較して予測してください。`,
-    caption:  `この画像に合うInstagramキャプションを3パターン生成してください。過去の成功投稿の傾向を参考に。\n\n**パターン1: （方向性）**\n（本文）\n\n**パターン2: （方向性）**\n（本文）\n\n**パターン3: （方向性）**\n（本文）\n\nインバウンド向けは日英バイリンガルで。`,
-    hashtag:  `この画像に最適なハッシュタグを提案してください。\n\n**必須タグ（認知度高）**\n（5〜8個）\n\n**ニッチタグ（競合少）**\n（5〜8個）\n\n**バイラルタグ（拡散狙い）**\n（3〜5個）\n\n**インバウンド向け（英語）**\n（3〜5個）`,
-    all:      `この投稿予定の画像について全てまとめて分析してください:\n1. 投稿評価（スコア・強み・改善点）\n2. キャプション案（3パターン）\n3. ハッシュタグ提案（カテゴリ別）\n4. 最適な投稿タイミング（過去データから）\n\n実データを踏まえた具体的な提案をしてください。`,
-  };
-
-  try {
-    const res = await fetch('/api/advisor', {
-      method: 'POST', headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ clientId, messages: [{ role: 'user', content: [
-        { type: 'image', source: { type: 'base64', media_type: contentImage.type, data: contentImage.data } },
-        { type: 'text', text: prompts[type] },
-      ]}]}),
-    });
-    const data = await res.json();
-    if (data.content) renderResult(type, data.content);
-    else resultArea.innerHTML = '<div style="color:#ff6b6b;padding:20px;font-size:13px;">エラーが発生しました。</div>';
-  } catch (e) {
-    resultArea.innerHTML = '<div style="color:#ff6b6b;padding:20px;font-size:13px;">エラーが発生しました。</div>';
-  }
-}
-
-function renderResult(type, content) {
-  resultArea.innerHTML = '';
-  const card = document.createElement('div');
-  card.className = 'result-card';
-
-  if (type === 'evaluate' || type === 'all') {
-    card.innerHTML = `<div class="result-title green">📊 ${type === 'all' ? '総合分析' : '投稿評価'}</div><div style="font-size:13px;line-height:1.7;color:var(--text2);">${fmt(content)}</div>`;
-    resultArea.appendChild(card);
-    return;
-  }
-
-  if (type === 'caption') {
-    card.innerHTML = `<div class="result-title purple">✏️ キャプション案</div>`;
-    const parts = content.split(/\*\*パターン\d+[^*]*\*\*/).filter(p => p.trim());
-    parts.forEach((p, i) => {
-      const opt = document.createElement('div'); opt.className = 'caption-option';
-      opt.innerHTML = `<div class="caption-num">パターン ${i+1}</div><div>${fmt(p.trim())}</div>`;
-      const btn = document.createElement('button'); btn.className = 'copy-btn'; btn.textContent = 'コピー';
-      btn.onclick = () => { navigator.clipboard.writeText(p.trim()); btn.textContent = '✓ コピー済み'; setTimeout(() => btn.textContent = 'コピー', 1500); };
-      opt.appendChild(btn); card.appendChild(opt);
-    });
-    resultArea.appendChild(card);
-    return;
-  }
-
-  if (type === 'hashtag') {
-    card.innerHTML = `<div class="result-title blue"># ハッシュタグ提案</div><div style="font-size:13px;line-height:1.7;color:var(--text2);">${fmt(content)}</div>`;
-    const tags = content.match(/#[\w\u3040-\u30FF\u3400-\u9FFF]+/g) || [];
-    if (tags.length > 0) {
-      const tagDiv = document.createElement('div'); tagDiv.style.marginTop = '12px';
-      tags.forEach(tag => {
-        const t = document.createElement('span'); t.className = 'hashtag'; t.textContent = tag;
-        t.onclick = () => { navigator.clipboard.writeText(tag); t.textContent = '✓ ' + tag; setTimeout(() => t.textContent = tag, 1500); };
-        tagDiv.appendChild(t);
-      });
-      const allBtn = document.createElement('button');
-      allBtn.style.cssText = 'margin-top:10px;padding:7px 16px;border-radius:100px;border:1px solid var(--blue);background:var(--blue2);color:var(--blue);font-size:12px;cursor:pointer;width:100%;';
-      allBtn.textContent = '全てコピー';
-      allBtn.onclick = () => { navigator.clipboard.writeText(tags.join(' ')); allBtn.textContent = '✓ コピーしました'; setTimeout(() => allBtn.textContent = '全てコピー', 2000); };
-      tagDiv.appendChild(allBtn); card.appendChild(tagDiv);
-    }
-    resultArea.appendChild(card);
-    return;
-  }
-
-  card.innerHTML = `<div style="font-size:13px;line-height:1.7;color:var(--text2);">${fmt(content)}</div>`;
-  resultArea.appendChild(card);
-}
 </script>
 </body>
 </html>
