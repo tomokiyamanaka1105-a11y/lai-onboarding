@@ -162,14 +162,19 @@ const quickReplies   = document.getElementById('quickReplies');
 const videoNote      = document.getElementById('videoNote');
 const imgBtn         = document.getElementById('imgBtn');
 
-const GEMINI_API_KEY = ''; // ← ここにGemini APIキーを入れる
+let GEMINI_API_KEY = '';
 
 let messages  = [];
 let clientId  = 'C001';
 let isLoading = false;
 let attached  = null; // { data, type, url, isVideo, fileUri(動画時) }
 
-window.addEventListener('load', () => {
+window.addEventListener('load', async () => {
+  try {
+    const cfgRes = await fetch('/api/get-config');
+    const cfg = await cfgRes.json();
+    GEMINI_API_KEY = cfg.geminiApiKey || '';
+  } catch(e) { console.error('config取得失敗', e); }
   addMsg('ai', 'こんにちは！L-A-Iアドバイザーです。\n\nJKTとWKSのデータを参照してリアルタイムでアドバイスします。\n\n**📎 画像・動画を添付**してコンテンツ評価・キャプション・ハッシュタグを生成できます。\n動画は**Gemini AIが全フレームを分析**し、Claudeが日本語アドバイスを生成します。\n\n何でも聞いてください！');
 });
 
@@ -258,27 +263,7 @@ async function uploadToGemini(file) {
   const uploadProg   = document.getElementById('uploadProgress');
   uploadProg.style.display = 'block';
 
-  // Step 1: Vercel経由でアップロード
-  const reader2 = new FileReader();
-  const base64 = await new Promise(resolve => {
-    reader2.onload = e => resolve(e.target.result.split(',')[1]);
-    reader2.readAsDataURL(file);
-  });
-
-  const uploadApiRes = await fetch('/api/upload-video', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ videoBase64: base64, mimeType: file.type, fileName: file.name }),
-  });
-  const uploadApiJson = await uploadApiRes.json();
-  if (!uploadApiJson.fileUri) throw new Error(uploadApiJson.error || 'アップロード失敗');
-
-  progressBar.style.width = '100%';
-  progressText.textContent = 'アップロード完了！';
-  setTimeout(() => { uploadProg.style.display = 'none'; }, 1000);
-  return uploadApiJson.fileUri;
-
-  // 以下は削除（到達しない）
+  // Step 1: Gemini File APIに直接アップロード
   const startRes = await fetch(
     `https://generativelanguage.googleapis.com/upload/v1beta/files?key=${GEMINI_API_KEY}`,
     {
