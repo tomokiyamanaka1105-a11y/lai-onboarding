@@ -231,7 +231,7 @@
   <div class="quick-replies" id="quickReplies"></div>
   <div class="input-area">
     <div class="input-box">
-      <textarea id="input" placeholder="何でも聞いてください..." rows="1"
+      <textarea id="input" placeholder="何でも聞いてください... (⌘+Enter で送信)" rows="1"
         onkeydown="handleKey(event)" oninput="autoResize(this)"></textarea>
       <button class="img-btn" id="imgBtn" onclick="document.getElementById('file-input').click()">📎</button>
       <button class="send-btn" id="sendBtn" onclick="sendMessage()">↑</button>
@@ -816,7 +816,7 @@ function runContent(type) {
 }
 
 function sendQuick(t) { inputEl.value = t; sendMessage(); }
-function handleKey(e) { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); } }
+function handleKey(e) { if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) { e.preventDefault(); sendMessage(); } }
 function autoResize(el) { el.style.height = 'auto'; el.style.height = Math.min(el.scrollHeight, 100) + 'px'; }
 
 // ── Google Auth ──
