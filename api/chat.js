@@ -1,15 +1,7 @@
-// ============================================================
-// api/chat.js - Vercel Functions エンドポイント
-// ============================================================
+// api/chat.js - オンボーディングチャットエンドポイント（ストリーミング・プロンプトキャッシュ対応）
 
-export default async function handler(req, res) {
-  if (req.method !== 'POST') {
-    return res.status(405).json({ error: 'Method not allowed' });
-  }
-
-  const { messages } = req.body;
-
-  const SYSTEM_PROMPT = `あなたはL-A-I（Instagram分析×AIレポートサービス）のオンボーディングサポートAIです。
+// 完全に静的なプロンプト → 全リクエストでキャッシュヒット
+const SYSTEM_PROMPT = `あなたはL-A-I（Instagram分析×AIレポートサービス）のオンボーディングサポートAIです。
 ユーザーがInstagram Graph APIのアクセストークンを取得できるよう、ステップバイステップでサポートします。
 
 ## あなたの役割
@@ -212,19 +204,8 @@ L-A-Iでは通常のインサイトに加えて、Instagramの広告パフォー
 ## スクリーンショットを受け取ったときの判断フロー
 
 1. どの画面か特定する
-   - Meta Business Suite の設定画面
-   - developers.facebook.com
-   - Facebookページの設定
-   - エラー画面
-
 2. 現在のステップを特定する
-   - どこまで完了しているか
-   - どこで詰まっているか
-
 3. 次のアクションを1つだけ明確に伝える
-   - 「〇〇をクリックしてください」
-   - 「△△の画面に移動してください」
-   - 複数の指示を同時に出さない
 
 ## 回答スタイル
 - 常に親切・丁寧・前向き
@@ -234,33 +215,70 @@ L-A-Iでは通常のインサイトに加えて、Instagramの広告パフォー
 - 完了したら次のステップを案内する
 - 日本語で回答する`;
 
+export default async function handler(req, res) {
+  if (req.method !== 'POST') {
+    return res.status(405).json({ error: 'Method not allowed' });
+  }
+
+  const { messages } = req.body;
+
   try {
-    const response = await fetch('https://api.anthropic.com/v1/messages', {
+    const anthropicRes = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
       headers: {
-        'Content-Type': 'application/json',
-        'x-api-key': process.env.ANTHROPIC_API_KEY,
+        'Content-Type':      'application/json',
+        'x-api-key':         process.env.ANTHROPIC_API_KEY,
         'anthropic-version': '2023-06-01',
       },
       body: JSON.stringify({
-        model: 'claude-sonnet-4-20250514',
-        max_tokens: 1024,
-        system: SYSTEM_PROMPT,
+        model:      'claude-sonnet-4-6',
+        max_tokens: 2048,
+        stream:     true,
+        // 静的プロンプト全体をキャッシュ（~6KB、全ユーザー共通）
+        system: [
+          { type: 'text', text: SYSTEM_PROMPT, cache_control: { type: 'ephemeral' } },
+        ],
         messages: messages,
       }),
     });
 
-    const data = await response.json();
-
-    if (!response.ok) {
-      return res.status(500).json({ error: data.error?.message || 'API Error' });
+    if (!anthropicRes.ok) {
+      const err = await anthropicRes.json();
+      return res.status(500).json({ error: err.error?.message || 'API Error' });
     }
 
-    return res.status(200).json({
-      content: data.content[0].text,
-    });
+    res.setHeader('Content-Type', 'text/event-stream');
+    res.setHeader('Cache-Control', 'no-cache');
+    res.setHeader('Connection', 'keep-alive');
+
+    const reader  = anthropicRes.body.getReader();
+    const decoder = new TextDecoder();
+
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+
+      const chunk = decoder.decode(value, { stream: true });
+      for (const line of chunk.split('\n')) {
+        if (!line.startsWith('data: ')) continue;
+        const data = line.slice(6).trim();
+        if (!data) continue;
+        try {
+          const event = JSON.parse(data);
+          if (event.type === 'content_block_delta' && event.delta?.type === 'text_delta') {
+            res.write(`data: ${JSON.stringify({ text: event.delta.text })}\n\n`);
+          } else if (event.type === 'message_stop') {
+            res.write('data: [DONE]\n\n');
+          }
+        } catch (_) {}
+      }
+    }
+
+    res.end();
 
   } catch (error) {
-    return res.status(500).json({ error: error.message });
+    if (!res.headersSent) {
+      res.status(500).json({ error: error.message });
+    }
   }
 }

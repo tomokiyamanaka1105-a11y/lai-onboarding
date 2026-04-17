@@ -1,4 +1,15 @@
-// api/advisor.js - AIアドバイザーチャットエンドポイント
+// api/advisor.js - AIアドバイザーチャットエンドポイント（ストリーミング対応）
+
+// キャッシュ対象の静的指示部分（リクエスト間で変わらない）
+const STATIC_INSTRUCTIONS = `あなたはL-A-Iの専属AIマーケティングコンサルタントです。
+
+## 回答スタイル
+- データを必ず引用して根拠のある回答をする
+- 抽象的な一般論は避け、このアカウントの実際の数値を使って具体的に回答する
+- 目標・方針が設定されている場合は、それを踏まえたアドバイスをする
+- 改善提案は「何を・いつ・どのように」まで具体化する
+- 日本語で自然に回答する
+- 簡潔に、でも根拠は必ず示す`;
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
@@ -8,7 +19,7 @@ export default async function handler(req, res) {
   const { messages, clientId, igUserId, accountProfile } = req.body;
   const GAS_API_URL = process.env.GAS_API_URL;
 
-  // ── GASからデータ取得（igUserIdで絞り込み）──
+  // ── GASからデータ取得 ──
   let contextData = '';
   try {
     const response = await fetch(`${GAS_API_URL}?clientId=${clientId || 'C001'}&type=all`);
@@ -103,26 +114,19 @@ export default async function handler(req, res) {
 `;
   }
 
-  // ── システムプロンプト ──
   const isSingleAccount = !!igUserId;
-  const SYSTEM_PROMPT = `あなたはL-A-Iの専属AIマーケティングコンサルタントです。
-${isSingleAccount ? '以下の特定アカウントのデータのみを参照して回答してください。他のアカウントのデータは参照しないでください。' : '複数アカウントを横断して分析してください。'}
+  const dynamicContext = `${isSingleAccount
+    ? '以下の特定アカウントのデータのみを参照して回答してください。他のアカウントのデータは参照しないでください。'
+    : '複数アカウントを横断して分析してください。'}
+${isSingleAccount ? '- 他のアカウントとの比較は求められた時のみ行う' : '- 各アカウントを比較して全体最適を提案する'}
 
 === 現在のアカウントデータ ===
 ${contextData}
-=== データ終わり ===${profileContext}
-
-## 回答スタイル
-- データを必ず引用して根拠のある回答をする
-- 抽象的な一般論は避け、このアカウントの実際の数値を使って具体的に回答する
-- 目標・方針が設定されている場合は、それを踏まえたアドバイスをする
-- 改善提案は「何を・いつ・どのように」まで具体化する
-- 日本語で自然に回答する
-- 簡潔に、でも根拠は必ず示す
-${isSingleAccount ? '- 他のアカウントとの比較は求められた時のみ行う' : '- 各アカウントを比較して全体最適を提案する'}`;
+=== データ終わり ===${profileContext}`;
 
   try {
-    const response = await fetch('https://api.anthropic.com/v1/messages', {
+    // ストリーミングリクエスト
+    const anthropicRes = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
       headers: {
         'Content-Type':      'application/json',
@@ -130,21 +134,57 @@ ${isSingleAccount ? '- 他のアカウントとの比較は求められた時の
         'anthropic-version': '2023-06-01',
       },
       body: JSON.stringify({
-        model:      'claude-sonnet-4-20250514',
-        max_tokens: 1024,
-        system:     SYSTEM_PROMPT,
-        messages:   messages,
+        model:      'claude-sonnet-4-6',
+        max_tokens: 4096,
+        stream:     true,
+        system: [
+          // 静的指示をキャッシュ（全リクエスト共通）
+          { type: 'text', text: STATIC_INSTRUCTIONS, cache_control: { type: 'ephemeral' } },
+          // 動的データはキャッシュしない（リクエストごとに変わる）
+          { type: 'text', text: dynamicContext },
+        ],
+        messages: messages,
       }),
     });
 
-    const data = await response.json();
-    if (!response.ok) {
-      return res.status(500).json({ error: data.error?.message || 'API Error' });
+    if (!anthropicRes.ok) {
+      const err = await anthropicRes.json();
+      return res.status(500).json({ error: err.error?.message || 'API Error' });
     }
 
-    return res.status(200).json({ content: data.content[0].text });
+    // SSEストリームをクライアントへ中継
+    res.setHeader('Content-Type', 'text/event-stream');
+    res.setHeader('Cache-Control', 'no-cache');
+    res.setHeader('Connection', 'keep-alive');
+
+    const reader  = anthropicRes.body.getReader();
+    const decoder = new TextDecoder();
+
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+
+      const chunk = decoder.decode(value, { stream: true });
+      for (const line of chunk.split('\n')) {
+        if (!line.startsWith('data: ')) continue;
+        const data = line.slice(6).trim();
+        if (!data) continue;
+        try {
+          const event = JSON.parse(data);
+          if (event.type === 'content_block_delta' && event.delta?.type === 'text_delta') {
+            res.write(`data: ${JSON.stringify({ text: event.delta.text })}\n\n`);
+          } else if (event.type === 'message_stop') {
+            res.write('data: [DONE]\n\n');
+          }
+        } catch (_) {}
+      }
+    }
+
+    res.end();
 
   } catch (error) {
-    return res.status(500).json({ error: error.message });
+    if (!res.headersSent) {
+      res.status(500).json({ error: error.message });
+    }
   }
 }

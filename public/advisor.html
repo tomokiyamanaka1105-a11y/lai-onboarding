@@ -592,6 +592,17 @@ function updateStep(idx) {
 
 function hideTyping() { const t = document.getElementById('typing'); if (t) t.remove(); }
 
+function createStreamingBubble(accountId) {
+  const d   = document.createElement('div'); d.className = 'message ai';
+  const av  = document.createElement('div'); av.className = 'avatar ai'; av.textContent = 'AI';
+  const b   = document.createElement('div'); b.className = 'bubble';
+  const txt = document.createElement('div'); b.appendChild(txt);
+  d.appendChild(av); d.appendChild(b);
+  if (!accountState[accountId]) accountState[accountId] = { messages: [], label: accountId, igUserId: accountId };
+  if (accountId === currentAccount) { chatEl.appendChild(d); chatEl.scrollTop = chatEl.scrollHeight; }
+  return { el: d, txt };
+}
+
 // ── Attachment ──
 function setContentBtns(disabled) {
   ['btnEval','btnCaption','btnHash','btnAll'].forEach(id => { document.getElementById(id).disabled = disabled; });
@@ -730,14 +741,34 @@ async function sendMessage(overridePrompt = null) {
 
     showTyping();
     try {
-      const res  = await fetch('/api/advisor', {
+      const res = await fetch('/api/advisor', {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ messages: sendMsgs, clientId: CLIENT_ID, igUserId, accountProfile: profile }),
       });
-      const data = await res.json();
+      if (!res.ok) throw new Error('API Error');
       hideTyping();
-      if (data.content) addMsg('ai', accountId, data.content);
-      else addMsg('ai', accountId, 'エラーが発生しました。');
+
+      const { el, txt } = createStreamingBubble(accountId);
+      const reader  = res.body.getReader();
+      const decoder = new TextDecoder();
+      let fullText  = '';
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        const chunk = decoder.decode(value, { stream: true });
+        for (const line of chunk.split('\n')) {
+          if (!line.startsWith('data: ')) continue;
+          const data = line.slice(6).trim();
+          if (data === '[DONE]') break;
+          try {
+            const { text } = JSON.parse(data);
+            if (text) { fullText += text; txt.innerHTML = fmt(fullText); chatEl.scrollTop = chatEl.scrollHeight; }
+          } catch (_) {}
+        }
+      }
+
+      accountState[accountId].messages.push({ role: 'ai', content: fullText, _el: el });
     } catch(e) { hideTyping(); addMsg('ai', accountId, 'エラーが発生しました。'); }
   }
 

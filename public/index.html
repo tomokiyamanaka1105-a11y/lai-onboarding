@@ -618,21 +618,45 @@ async function sendMessage() {
       body: JSON.stringify({ messages }),
     });
 
-    const data = await res.json();
+    if (!res.ok) throw new Error('API Error');
     hideTyping();
 
-    if (data.content) {
-      addMessage('ai', data.content);
-      messages.push({ role: 'assistant', content: data.content });
+    // ストリーミングバブルを作成
+    const msgEl    = document.createElement('div'); msgEl.className = 'message ai';
+    const av       = document.createElement('div'); av.className = 'avatar ai'; av.textContent = 'AI';
+    const bubble   = document.createElement('div'); bubble.className = 'bubble';
+    const txtEl    = document.createElement('div'); bubble.appendChild(txtEl);
+    msgEl.appendChild(av); msgEl.appendChild(bubble);
+    chatEl.appendChild(msgEl); chatEl.scrollTop = chatEl.scrollHeight;
 
-      // トークン取得完了を検知
-      if (data.content.includes('トークン') && (data.content.includes('取得できました') || data.content.includes('完了') || data.content.includes('EAA'))) {
-        document.getElementById('completeSection').classList.add('show');
+    const reader  = res.body.getReader();
+    const decoder = new TextDecoder();
+    let fullText  = '';
+
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      const chunk = decoder.decode(value, { stream: true });
+      for (const line of chunk.split('\n')) {
+        if (!line.startsWith('data: ')) continue;
+        const data = line.slice(6).trim();
+        if (data === '[DONE]') break;
+        try {
+          const { text } = JSON.parse(data);
+          if (text) { fullText += text; txtEl.innerHTML = formatText(fullText); chatEl.scrollTop = chatEl.scrollHeight; }
+        } catch (_) {}
       }
-
-      // ステップ更新
-      updateStep(data.content);
     }
+
+    messages.push({ role: 'assistant', content: fullText });
+
+    // トークン取得完了を検知
+    if (fullText.includes('トークン') && (fullText.includes('取得できました') || fullText.includes('完了') || fullText.includes('EAA'))) {
+      document.getElementById('completeSection').classList.add('show');
+    }
+
+    // ステップ更新
+    updateStep(fullText);
 
   } catch (e) {
     hideTyping();
