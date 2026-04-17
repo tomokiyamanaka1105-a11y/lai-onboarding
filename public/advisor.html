@@ -714,9 +714,9 @@ async function sendMessage(overridePrompt = null) {
 
   // 会話履歴（直近10往復）
   const history = (accountState[accountId]?.messages || [])
-    .filter(m => m.role === 'user' || m.role === 'assistant')
+    .filter(m => m.role === 'user' || m.role === 'ai')
     .slice(-20)
-    .map(m => ({ role: m.role === 'assistant' ? 'assistant' : 'user', content: typeof m.content === 'string' ? m.content : m.content }));
+    .map(m => ({ role: m.role === 'ai' ? 'assistant' : 'user', content: typeof m.content === 'string' ? m.content : m.content }));
 
   if (usedAttach?.isVideo && usedAttach?.fileUri) {
     showTyping(['Geminiが動画を全フレーム分析中...', 'Claudeが日本語アドバイスを生成中...']);
@@ -726,10 +726,14 @@ async function sendMessage(overridePrompt = null) {
         body: JSON.stringify({ fileUri: usedAttach.fileUri, videoMimeType: usedAttach.type, clientId: CLIENT_ID, igUserId, accountProfile: profile, prompt: text || '全部まとめて評価してください。' }),
       });
       updateStep(1);
+      if (!res.ok) {
+        const errText = await res.text();
+        throw new Error(`サーバーエラー (${res.status}): ${errText.substring(0, 120)}`);
+      }
       const data = await res.json();
       hideTyping();
       if (data.content) addMsg('ai', accountId, data.content, null, false, true);
-      else addMsg('ai', accountId, `エラー: ${data.geminiAnalysis || '不明'}`);
+      else addMsg('ai', accountId, `エラー: ${data.error || data.geminiAnalysis || '不明'}`);
     } catch(e) { hideTyping(); addMsg('ai', accountId, `エラー: ${e.message}`); }
 
   } else {
@@ -843,6 +847,7 @@ async function onLoginSuccess(user) {
   await loadAccountData();
   await restoreAllLogs();
   renderQuickReplies();
+  renderChat();
 }
 
 function logout() {

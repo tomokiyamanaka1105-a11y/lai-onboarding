@@ -6,6 +6,10 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
+  if (!req.body) {
+    return res.status(400).json({ error: 'リクエストボディが空です' });
+  }
+
   const { fileUri, videoMimeType, clientId, prompt } = req.body;
   const GAS_API_URL       = process.env.GAS_API_URL;
   const GEMINI_API_KEY    = process.env.GEMINI_API_KEY;
@@ -136,7 +140,7 @@ ${geminiAnalysis}
     const content    = claudeJson?.content?.[0]?.text;
 
     if (!content) {
-      return res.status(500).json({ error: 'Claude API Error', geminiAnalysis });
+      return res.status(500).json({ error: `Claude API Error: ${JSON.stringify(claudeJson?.error || claudeJson)}`, geminiAnalysis });
     }
 
     return res.status(200).json({ content, geminiAnalysis });
