@@ -221,7 +221,7 @@
       </div>
     </div>
   </div>
-  <div class="video-note" id="videoNote">🎬 動画はGemini AIが全フレームを分析 → Claudeが日本語アドバイスを生成します</div>
+  <div class="video-note" id="videoNote">🎬 動画を添付するとAIが全フレームを分析してアドバイスを生成します</div>
   <div class="content-actions" id="contentActions">
     <button class="ca-btn green"  id="btnEval"    onclick="runContent('evaluate')">📊 投稿評価</button>
     <button class="ca-btn purple" id="btnCaption" onclick="runContent('caption')">✏️ キャプション</button>
@@ -540,7 +540,7 @@ function addMsg(role, accountId, content, mediaUrl = null, isVideo = false, isGe
   const b  = document.createElement('div'); b.className = 'bubble';
 
   if (isGemini) {
-    const badge = document.createElement('div'); badge.className = 'model-badge'; badge.textContent = '🎬 Gemini + Claude'; b.appendChild(badge);
+    const badge = document.createElement('div'); badge.className = 'model-badge'; badge.textContent = '🎬 動画解析'; b.appendChild(badge);
   }
   const txt = document.createElement('div'); txt.innerHTML = fmt(content); b.appendChild(txt);
   if (mediaUrl) {
@@ -689,11 +689,11 @@ async function handleFile(e) {
   updateAttachUI(true); setContentBtns(true);
 
   if (isVideo) {
-    document.getElementById('uploadStatus').innerHTML = `<span class="hl blue">🎬 動画を添付しました</span><br>Geminiにアップロード中...`;
+    document.getElementById('uploadStatus').innerHTML = `<span class="hl blue">🎬 動画を添付しました</span><br>アップロード中...`;
     try {
       const fileUri = await uploadToGemini(f);
       attached.fileUri = fileUri;
-      document.getElementById('uploadStatus').innerHTML = `<span class="hl blue">🎬 Geminiが動画を分析中...</span><br>しばらくお待ちください`;
+      document.getElementById('uploadStatus').innerHTML = `<span class="hl blue">🎬 AIが動画を解析中...</span><br>しばらくお待ちください`;
       const geminiAnalysis = await analyzeVideoWithGemini(fileUri, f.type);
       attached.geminiAnalysis = geminiAnalysis;
       document.getElementById('uploadStatus').innerHTML = `<span class="hl blue">🎬 分析完了</span><br>下のボタンでアドバイスを生成してください`;
@@ -743,7 +743,7 @@ async function sendMessage(overridePrompt = null) {
     .map(m => ({ role: m.role === 'ai' ? 'assistant' : 'user', content: typeof m.content === 'string' ? m.content : m.content }));
 
   if (usedAttach?.isVideo && usedAttach?.geminiAnalysis) {
-    showTyping(['Claudeが日本語アドバイスを生成中...']);
+    showTyping(['AIがアドバイスを生成中...']);
     try {
       const res  = await fetch('/api/advisor-video', {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
