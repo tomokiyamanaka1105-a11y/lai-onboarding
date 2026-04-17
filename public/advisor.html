@@ -756,7 +756,7 @@ async function sendMessage(overridePrompt = null) {
       const data = await res.json();
       hideTyping();
       if (data.content) {
-        if (data.geminiAnalysis) addMsg('ai', accountId, `🔍 **[デバッグ] Gemini生分析:**\n${data.geminiAnalysis.substring(0, 1000)}`);
+        if (data.geminiAnalysis) addMsg('ai', accountId, `🔍 **[デバッグ] Gemini生分析:**\n${data.geminiAnalysis}`);
         addMsg('ai', accountId, data.content, null, false, true);
       } else addMsg('ai', accountId, `エラー: ${data.error || '不明'}`);
     } catch(e) { hideTyping(); addMsg('ai', accountId, `エラー: ${e.message}`); }
