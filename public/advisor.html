@@ -649,6 +649,27 @@ async function uploadToGemini(file) {
   return fileUri;
 }
 
+async function analyzeVideoWithGemini(fileUri, mimeType) {
+  const res = await fetch(
+    `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${GEMINI_API_KEY}`,
+    {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        contents: [{ parts: [
+          { file_data: { mime_type: mimeType, file_uri: fileUri } },
+          { text: `この動画を詳しく分析してください。以下の点を日本語で簡潔に報告してください:\n\n1. 動画の内容・シーン（何が映っているか、どんな動きがあるか、時系列で）\n2. Instagram投稿として見た場合の視覚的な強み・弱み\n3. 冒頭3秒のフック（視聴者の注意を引けているか）\n4. 動画の流れ・テンポ（飽きさせない構成か）\n5. 音声・BGM（あれば）の印象\n6. テキストやキャプションの視認性（あれば）\n7. 総合的な改善提案（具体的に）\n\n客観的な事実を中心に箇条書きで報告してください。` },
+        ]}],
+        generationConfig: { temperature: 0.3, maxOutputTokens: 2048 },
+      }),
+    }
+  );
+  const json = await res.json();
+  const text = json?.candidates?.[0]?.content?.parts?.[0]?.text;
+  if (!text) throw new Error(`Gemini分析失敗: ${JSON.stringify(json?.error || json).substring(0, 100)}`);
+  return text;
+}
+
 async function handleFile(e) {
   const f = e.target.files[0]; if (!f) return;
   const isVideo = f.type.startsWith('video');
@@ -668,14 +689,17 @@ async function handleFile(e) {
   updateAttachUI(true); setContentBtns(true);
 
   if (isVideo) {
-    document.getElementById('uploadStatus').innerHTML = `<span class="hl blue">🎬 動画を添付しました</span><br>Gemini File APIにアップロード中...`;
+    document.getElementById('uploadStatus').innerHTML = `<span class="hl blue">🎬 動画を添付しました</span><br>Geminiにアップロード中...`;
     try {
       const fileUri = await uploadToGemini(f);
       attached.fileUri = fileUri;
-      document.getElementById('uploadStatus').innerHTML = `<span class="hl blue">🎬 アップロード完了</span><br>下のボタンで分析してください`;
+      document.getElementById('uploadStatus').innerHTML = `<span class="hl blue">🎬 Geminiが動画を分析中...</span><br>しばらくお待ちください`;
+      const geminiAnalysis = await analyzeVideoWithGemini(fileUri, f.type);
+      attached.geminiAnalysis = geminiAnalysis;
+      document.getElementById('uploadStatus').innerHTML = `<span class="hl blue">🎬 分析完了</span><br>下のボタンでアドバイスを生成してください`;
       setContentBtns(false);
     } catch(err) {
-      document.getElementById('uploadStatus').innerHTML = `<span style="color:#ff6b6b;">⚠️ アップロード失敗: ${err.message}</span>`;
+      document.getElementById('uploadStatus').innerHTML = `<span style="color:#ff6b6b;">⚠️ 失敗: ${err.message}</span>`;
       attached = null; updateAttachUI(false);
     }
   } else {
@@ -718,14 +742,13 @@ async function sendMessage(overridePrompt = null) {
     .slice(-20)
     .map(m => ({ role: m.role === 'ai' ? 'assistant' : 'user', content: typeof m.content === 'string' ? m.content : m.content }));
 
-  if (usedAttach?.isVideo && usedAttach?.fileUri) {
-    showTyping(['Geminiが動画を全フレーム分析中...', 'Claudeが日本語アドバイスを生成中...']);
+  if (usedAttach?.isVideo && usedAttach?.geminiAnalysis) {
+    showTyping(['Claudeが日本語アドバイスを生成中...']);
     try {
       const res  = await fetch('/api/advisor-video', {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ fileUri: usedAttach.fileUri, videoMimeType: usedAttach.type, clientId: CLIENT_ID, igUserId, accountProfile: profile, prompt: text || '全部まとめて評価してください。' }),
+        body: JSON.stringify({ geminiAnalysis: usedAttach.geminiAnalysis, clientId: CLIENT_ID, igUserId, accountProfile: profile, prompt: text || '全部まとめて評価してください。' }),
       });
-      updateStep(1);
       if (!res.ok) {
         const errText = await res.text();
         throw new Error(`サーバーエラー (${res.status}): ${errText.substring(0, 120)}`);
@@ -733,7 +756,7 @@ async function sendMessage(overridePrompt = null) {
       const data = await res.json();
       hideTyping();
       if (data.content) addMsg('ai', accountId, data.content, null, false, true);
-      else addMsg('ai', accountId, `エラー: ${data.error || data.geminiAnalysis || '不明'}`);
+      else addMsg('ai', accountId, `エラー: ${data.error || '不明'}`);
     } catch(e) { hideTyping(); addMsg('ai', accountId, `エラー: ${e.message}`); }
 
   } else {
